@@ -1,402 +1,555 @@
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-#include <deque>
-#include <vector>
+/**
+ * Computing Geometry Library
+ * ref1: https://onlinejudge.u-aizu.ac.jp/courses/library/4/CGL/all
+ * ref2: https://darkbzoj.tk/problem/2178
+ * @author Sshwy
+ */
+#include <bits/stdc++.h>
 using namespace std;
-const double EPS = 1e-9;
-const double Pi = acos(-1);
-inline int sign(double a) { return a < EPS ? -1 : a > EPS; }
-inline int cmp(double a, double b) { return sign(a - b); }
-struct Point {
-  double x, y;
-  Point(double xx = 0, double yy = 0) { x = xx, y = yy; }
-  Point operator+(Point p) { return Point(x + p.x, y + p.y); }
-  Point operator-(Point p) { return Point(x - p.x, y - p.y); }
-  Point operator*(double d) { return Point(x * d, y * d); }
-  Point operator/(double d) { return Point(x / d, y / d); }
-  bool operator<(Point p) const {
-    int c = cmp(x, p.x);
-    if (c) return c == -1;
-    return cmp(y, p.y) == -1;
-  }
-  bool operator==(Point p) const { return cmp(x, p.x) == 0 && cmp(y, p.y) == 0; }
-  double dot(Point p) { return x * p.x + y * p.y; }
-  double det(Point p) { return x * p.y - y * p.x; }
-  double abs2() { return x * x + y * y; }
-  double abs() { return sqrt(abs2()); }
-  double dist(Point p) { return (*this - p).abs(); }
-  double alpha() { return atan2(y, x); }
-  Point rot90() { return Point(-y, x); }
-  Point unit() { return *this / abs(); }
-  int quad() const { return sign(y) == 1 || (sign(y) == 0 && sign(x) >= 0); }
-  Point rot(double an) {
-    return Point(x * cos(an) - y * sin(an), x * sin(an) + y * cos(an));
-  }
-};
-struct Line {
-  Point p1, p2; // p1->p2
-  Line(Point q1, Point q2) { p1 = q1, p2 = q2; }
-  Point &operator[](int i) { return i == 0 ? p1 : p2; }
-  Point dir() { return p2 - p1; }
-  bool include(Point p) { return sign((p2 - p1).det(p - p1)) >= 0; }
-  Line push() // push eps outward
-  {
-    const double eps = 1e-7;
-    Point delta = (p2 - p1).rot90().unit() * eps;
-    p1 = p1 - delta, p2 = p2 - delta;
-    return *this;
-  }
-};
-bool chkLL(Point p1, Point p2, Point q1, Point q2) {
-  return sign((p2 - p1).det(q2 - q1)) == 0;
-}
-bool chkLL(Line l1, Line l2) { return chkLL(l1[0], l1[1], l2[0], l2[1]); }
-Point isLL(Point p1, Point p2, Point q1, Point q2) // qiu jiao dian
-{
-  double a = (q1 - p1).det(p2 - p1);
-  double b = (p2 - p1).det(q2 - p1);
-  return (q1 * b + q2 * a) / (a + b);
-}
-Point isLL(Line l1, Line l2) { return isLL(l1[0], l1[1], l2[0], l2[1]); }
-bool intersect(double l1, double r1, double l2, double r2) {
-  if (l1 > r1) swap(l1, r1);
-  if (l2 > r2) swap(l2, r2);
-  return cmp(l1, r2) >= 0 && cmp(l2, r1) >= 0;
-}
-bool isMiddle(double a, double m, double b) {
-  return sign(a - m) == 0 || sign(b - m) == 0 || ((a > m) != (b > m));
-}
-bool isMiddle(Point a, Point m, Point b) {
-  return isMiddle(a.x, m.x, b.x) && isMiddle(a.y, m.y, b.y);
-}
-bool isSS(Point p1, Point p2, Point q1, Point q2) // shi fou cun zai jiao dian
-{
-  if (chkLL(p1, p2, q1, q2)) return 0;
-  Point p = isLL(p1, p2, q1, q2);
-  if (isMiddle(p1, p, p2) && isMiddle(q1, p, q2)) return 1;
-  else return 0;
-}
-bool onSeg(Point p1, Point p2, Point p) {
-  return sign((p - p1).det(p2 - p1)) == 0 && isMiddle(p1, p, p2);
-}
-Point proj(Point p1, Point p2, Point q) {
-  Point dir = p2 - p1;
-  return p1 + dir * (dir.dot(q - p1) / dir.abs2());
-}
-Point reflect(Point p1, Point p2, Point q) { return proj(p1, p2, q) * 2 - q; }
-double disLP(Point p1, Point p2, Point q) // dian dao zhi xian de ju li
-{
-  Point h = proj(p1, p2, q);
-  return q.dist(h);
-}
-double disSP(Point p1, Point p2, Point q) // dian dao xian duan de ju li
-{
-  Point h = proj(p1, p2, q);
-  if (isMiddle(p1, h, p2)) return q.dist(h);
-  return min(q.dist(p1), q.dist(p2));
-}
-double disLL(Point p1, Point p2, Point q1, Point q2) // zhi xian ju li
-{
-  if (sign((p2 - p1).det(q2 - q1)) != 0) return 0;
-  return disLP(q1, q2, p1);
-}
-double disSS(Point p1, Point p2, Point q1, Point q2) // xian duan ju li
-{
-  if (isSS(p1, p2, q1, q2)) return 0;
-  return min(min(disSP(p1, p2, q1), disSP(p1, p2, q2)),
-      min(disSP(q1, q2, p1), disSP(q1, q2, p2)));
-}
-double rad(Point p1, Point p2) // qiu jia jiao
-{
-  return atan2(p1.det(p2), p1.dot(p2));
-}
-double area(vector<Point> ps) // qiu mian ji
-{
-  double ret = 0;
-  int n = ps.size();
-  for (int i = 0; i < n; i++) ret += ps[i].det(ps[(i + 1) % n]);
-  return ret / 2;
-}
-int contain(vector<Point> ps, Point p) // 2:insize,1:on_seg,0:outsize
-{
-  int n = ps.size();
-  int ret = 0;
-  for (int i = 0; i < n; i++) {
-    Point u = ps[i], v = ps[(i + 1) % n];
-    if (onSeg(u, v, p)) return 1;
-    if (u.y < v.y) swap(u, v);
-    if (cmp(u.y, p.y) < 0 || cmp(v.y, p.y) >= 0) continue;
-    ret ^= (sign((u - p).det(v - p)) > 0);
-  }
-  return ret * 2;
-}
-int check(Point i, Point j, Point k) { return sign((j - i).det(k - i)); }
-vector<Point> convexHull(vector<Point> ps) // tu bao
-{
-  int n = ps.size();
-  if (n <= 1) return ps;
-  sort(ps.begin(), ps.end());
-  vector<Point> qs(n * 2);
-  int k = 0;
-  for (int i = 0; i < n; qs[k++] = ps[i++])
-    while (k > 1 && check(qs[k - 2], qs[k - 1], ps[i]) >= 0) --k;
-  for (int i = n - 2, t = k; i >= 0; qs[k++] = ps[i--])
-    while (k > t && check(qs[k - 2], qs[k - 1], ps[i]) >= 0) --k;
-  qs.resize(k - 1);
-  return qs;
-}
-double convexDiameter(vector<Point> ps) // xuan zhuan ka/qia ke
-{
-  int n = ps.size();
-  if (n <= 1) return 0;
-  int is = 0, js = 0;
-  for (int i = 0; i < n; i++) {
-    is = ps[i] < ps[is] ? i : is;
-    js = ps[js] < ps[i] ? i : js;
-  }
-  int i = is, j = js;
-  double ans = ps[i].dist(ps[j]);
-  do {
-    if ((ps[(i + 1) % n] - ps[i]).det(ps[(j + 1) % n] - ps[j]) >= 0) j = (j + 1) % n;
-    else i = (i + 1) % n;
-    ans = max(ans, ps[i].dist(ps[j]));
-  } while (i != is || j != js);
-  return ans;
-}
-vector<Point> convexcut(const vector<Point> &ps, Point q1, Point q2) {
-  vector<Point> qs;
-  int n = ps.size();
-  for (int i = 0; i < n; i++) {
-    Point p1 = ps[i], p2 = ps[(i + 1) % n];
-    int d1 = check(q1, q2, p1), d2 = check(q1, q2, p2);
-    if (d1 >= 0) qs.push_back(p1);
-    if (d1 * d2 < 0) qs.push_back(isLL(p1, p2, q1, q2));
-  }
-  return qs;
-}
-bool parallel(Line l1, Line l2) { return sign(l1.dir().det(l2.dir())) == 0; }
-bool sameDir(Line l1, Line l2) {
-  return parallel(l1, l2) && sign(l1.dir().dot(l2.dir())) > 0;
-}
-bool operator<(Line l1, Line l2) {
-  if (sameDir(l1, l2)) return l2.include(l1[0]);
-  else return cmp(l1.dir().alpha(), l2.dir().alpha()) == -1;
-}
-bool check(Line u, Line v, Line w) { return v.include(isLL(u, w)); }
-vector<Point> halfPlaneIS(vector<Line> &l) {
-  sort(l.begin(), l.end());
-  deque<Line> q;
-  int n = l.size();
-  for (int i = 0; i < n; i++) {
-    if (i && sameDir(l[i], l[i - 1])) continue;
-    while (q.size() > 1 && check(q[q.size() - 2], q[q.size() - 1], l[i])) q.pop_back();
-    while (q.size() > 1 && check(l[i], q[0], q[1])) q.pop_front();
-    q.push_back(l[i]);
-  }
-  while (q.size() > 2 && check(q[0], q[q.size() - 1], q[q.size() - 2])) q.pop_back();
-  while (q.size() > 2 && check(q[q.size() - 1], q[0], q[1])) q.pop_front();
-  vector<Point> ret;
-  int m = q.size();
-  for (int i = 0; i < m; i++) ret.push_back(isLL(q[i], q[(i + 1) % m]));
-  return ret;
-}
-//------------------circle--------------------
-int type(Point o1, double r1, Point o2, double r2) {
-  double d = o1.dist(o2);
-  if (cmp(d, r1 + r2) == 1) return 4;
-  if (cmp(d, r1 + r2) == 0) return 3;
-  if (cmp(d, abs(r1 - r2)) == 1) return 2;
-  if (cmp(d, abs(r1 - r2)) == 0) return 1;
-  return 0;
-}
-pair<Point, Point> isCL(Point o, double r, Point p1, Point p2) {
-  double x = (p1 - o).dot(p2 - p1);
-  double y = (p2 - p1).abs2();
-  double d = x * x - y * ((p1 - o).abs2() - r * r);
-  d = max(d, 0.0);
-  Point m = p1 - (p2 - p1) * (x / y), dr = (p2 - p1) * (sqrt(d) / y);
-  return make_pair(m - dr, m + dr);
-}
-pair<Point, Point> isCC(Point o1, double r1, Point o2, double r2) {
-  int t = type(o1, r1, o2, r2);
-  if (t == 4 || t == 0) return make_pair(Point(0, 0), Point(0, 0));
-  double d = (o2 - o1).abs2();
-  d = min(d, (r1 + r2) * (r1 + r2));
-  double y = (r1 + r2) * (r1 - r2) + d;
-  Point m = o1 + (o2 - o1).unit() * y / (2 * sqrt(d));
-  double x = sqrt(r1 * r1 - y * y / (4 * d));
-  Point dr = (o2 - o1).unit().rot90() * x;
-  return make_pair(m - dr, m + dr);
-}
-pair<Point, Point> tanCP(Point o, double r, Point p) {
-  double d = (p - o).abs2();
-  double y = r * r / sqrt(d);
-  Point m = o + (p - o).unit() * y;
-  double x = sqrt(r * r - r * r * r * r / d);
-  Point dr = (p - o).unit().rot90() * x;
-  return make_pair(m - dr, m + dr);
-}
-pair<Line, Line> extanCC(Point o1, double r1, Point o2, double r2) {
-  if (cmp(r1, r2) == 0) {
-    Point dr = (o2 - o1).unit().rot90();
-    Line l1(o1 + dr, o2 + dr);
-    Line l2(o2 + dr, o1 + dr);
-    return make_pair(l1, l2);
-  } else {
-    Point p = (o1 * r2 - o2 * r1) / (r2 - r1);
-    pair<Point, Point> a = tanCP(o1, r1, p);
-    pair<Point, Point> b = tanCP(o2, r2, p);
-    Line l1(a.first, b.first);
-    Line l2(a.second, b.second);
-    return make_pair(l1, l2);
-  }
-}
-pair<Line, Line> intanCC(Point o1, double r1, Point o2, double r2) {
-  Point p = (o1 * r2 + o2 * r1) / (r1 + r2);
-  pair<Point, Point> a = tanCP(o1, r1, p);
-  pair<Point, Point> b = tanCP(o2, r2, p);
-  Line l1(a.first, b.first);
-  Line l2(a.second, b.second);
-  return make_pair(l1, l2);
-}
-//---simpson---
-double F(double x) { return x; }
-double simpson(double a, double b) {
-  double c = a + (b - a) / 2;
-  return (F(a) + F(b) + 4 * F(c)) * (b - a) / 6;
-}
-double rsimpson(double a, double b, double s) {
-  double c = a + (b - a) / 2;
-  double l = simpson(a, c), r = simpson(c, b);
-  if (sign(s - l - r) == 0) return l + r + (a - l - r) / 15;
-  return rsimpson(a, c, l) + rsimpson(c, b, r);
-}
-//---end---
-double areaCT(double r, Point p1, Point p2) {
-  if (disSP(p1, p2, Point(0, 0)) > r + EPS) return r * r * rad(p1, p2) / 2;
-  bool f1 = p1.abs2() < r * r + EPS, f2 = p2.abs2() < r * r + EPS;
-  if (f1 && f2) return p1.det(p2);
-  if (f1) {
-    Point p = isCL(Point(0, 0), r, p1, p2).second;
-    return p1.det(p) + r * r * rad(p, p2) / 2;
-  }
-  if (f2) {
-    Point p = isCL(Point(0, 0), r, p1, p2).first;
-    return r * r * rad(p1, p) / 2 + p.det(p2);
-  }
-  pair<Point, Point> p = isCL(Point(0, 0), r, p1, p2);
-  return p1.det(p.first) + r * r * rad(p.first, p.second) + p.second.det(p2);
-} // http://acm.hdu.edu.cn/showproblem.php?pid=5130
-Point circleCenter(Point a, Point b, Point c) {
-  Point p1, p2, q1, q2;
-  p1 = (a + b) / 2;
-  p2 = p1 + (b - a).rot90();
-  q1 = (b + c) / 2;
-  q2 = q1 + (b - c).rot90();
-  return isLL(p1, p2, q1, q2);
-}
-pair<Point, double> min_circle(Point *a, int n) {
-  random_shuffle(a + 1, a + n + 1);
-  Point o = a[1];
-  double r = 0;
-  for (int i = 2; i < n; i++)
-    if (a[i].dist(o) > r + EPS) {
-      o = a[i];
-      r = 0;
-      for (int j = 1; j < i; j++)
-        if (a[j].dist(o) > r + EPS) {
-          o = (a[i] + a[j]) / 2;
-          r = o.dist(a[i]);
-          for (int k = 1; k < j; k++)
-            if (a[k].dist(o) > r + EPS) {
-              o = circleCenter(a[i], a[j], a[k]);
-              r = o.dist(a[i]);
-            }
-        }
+#define pb push_back
+#define FOR(i, a, b) for (int i = (int)(a); i <= (int)(b); ++i)
+#define ROF(i, a, b) for (int i = (int)(a); i >= (int)(b); --i)
+
+namespace cg {
+  typedef long double vtyp;
+  const vtyp eps = 1e-9;
+  const vtyp PI = 3.1415926535897932626;
+
+  bool isZero(vtyp x) { return -eps < x && x < eps; }
+  bool eq(vtyp x, vtyp y) { return isZero(x - y); }
+  bool neq(vtyp x, vtyp y) { return !eq(x, y); }
+  bool lt(vtyp x, vtyp y) { return !eq(x, y) && x < y; }
+  bool gt(vtyp x, vtyp y) { return !eq(x, y) && x > y; }
+  bool le(vtyp x, vtyp y) { return eq(x, y) || x < y; }
+  bool ge(vtyp x, vtyp y) { return eq(x, y) || x > y; }
+
+  struct vec {
+    vtyp x, y;
+    vec() { x = y = 0; }
+    vec(vtyp _x, vtyp _y) { x = _x, y = _y; }
+
+    vec operator+(const vec V) const { return vec(x + V.x, y + V.y); }
+    vec operator-() const { return vec(-x, -y); }
+    vec operator-(const vec V) const { return *this + (-V); }
+    vec operator*(const vtyp a) const { return vec(x * a, y * a); }
+    friend vec operator*(const vtyp a, const vec v) { return v * a; }
+    vec operator/(const vtyp a) const { return vec(x / a, y / a); }
+    operator bool() const { return !(isZero(x) && isZero(y)); }
+    bool operator==(const vec V) const { return bool(*this - V) == 0; }
+    bool operator!=(const vec V) const { return bool(*this - V) != 0; }
+    bool operator<(const vec V) const { return x == V.x ? y < V.y : x < V.x; }
+    bool operator>(const vec V) const { return x == V.x ? y > V.y : x > V.x; }
+
+    vtyp length() const { return sqrt(x * x + y * y); }
+    /**
+     * 方向角，单位 rad
+     */
+    vtyp ang() const { return atan2(y, x); }
+    /**
+     * 方向向量
+     * @return 0向量或者一个单位向量
+     */
+    vec dir() const {
+      if (*this) {
+        vtyp len = length();
+        // vtyp ang = atan2(y,x); return vec(cos(ang), sin(ang));
+        return vec(x / len, y / len);
+      } else return vec(0, 0);
     }
-  return make_pair(o, r);
-}
-struct Point3 {
-  double x, y, z;
-  Point3(double xx = 0, double yy = 0, double zz = 0) { x = xx, y = yy, z = zz; }
-  Point3 operator+(Point3 p) { return Point3(x + p.x, y + p.y, z + p.z); }
-  Point3 operator-(Point3 p) { return Point3(x - p.x, y - p.y, z - p.z); }
-  Point3 operator*(double d) { return Point3(x * d, y * d, z * d); }
-  Point3 operator/(double d) { return Point3(x / d, y / d, z / d); }
-  bool operator<(Point3 p) const {
-    int c = cmp(x, p.x);
-    if (c) return c == -1;
-    c = cmp(y, p.y);
-    if (c) return c == -1;
-    return cmp(z, p.z) == -1;
+    // void read(){ scanf("%Lf%Lf",&x,&y); }
+  };
+  typedef vec point;
+
+  vec r90_clockwise(const vec v) { // 顺时针旋转 90 度
+    return vec(v.y, -v.x);
   }
-  bool operator==(Point3 p) const {
-    return cmp(x, p.x) == 0 && cmp(y, p.y) == 0 && cmp(z, p.z) == 0;
+
+  struct line {
+    point p1, p2;
+    line(point _p1, point _p2) { p1 = _p1, p2 = _p2; }
+    line operator+(point p) { return line(p1 + p, p2 + p); } // shift
+    line operator-(point p) { return line(p1 - p, p2 - p); }
+    vec dir() const { return (p2 - p1).dir(); }
+  };
+  typedef line segment;
+
+  istream &operator>>(istream &in, vec &v) { return in >> v.x >> v.y, in; }
+  ifstream &operator>>(ifstream &in, vec &v) { return in >> v.x >> v.y, in; }
+  ostream &operator<<(ostream &out, const vec &v) {
+    return out << v.x << " " << v.y, out;
   }
-  double dot(Point3 p) { return x * p.x + y * p.y + z * p.z; }
-  Point3 det(Point3 p) {
-    return Point3(y * p.z - z * p.y, z * p.x - x * p.z, x * p.y - y * p.x);
+  ofstream &operator<<(ofstream &out, const vec &v) {
+    return out << v.x << " " << v.y, out;
   }
-  double abs2() { return x * x + y * y + z * z; }
-  double abs() { return sqrt(abs2()); }
-  double dist(Point3 p) { return (*this - p).abs(); }
-  Point3 unit() { return *this / abs(); }
-};
-double disLP(Point3 p1, Point3 p2, Point3 q) {
-  return sqrt((p2 - p1).det(q - p1).abs2() / (p2 - p1).abs2());
-}
-double disLL(Point3 p1, Point3 p2, Point3 q1, Point3 q2) {
-  Point3 o = (p2 - p1).det(q2 - q1);
-  if (o.abs() <= EPS) return disLP(p1, p2, q1);
-  return fabs(o.unit().dot(p1 - p2));
-}
-Point3 proj(Point3 p, Point3 q, Point3 v) {
-  double d2 = (p - q).det(v - q).abs2() / (v - q).abs2();
-  double d = sqrt((p - q).abs2() - d2);
-  return p - (v - q).unit() * d;
-}
-Point3 isFL(Point3 p, Point3 o, Point3 q1, Point3 q2) {
-  double a = (q2 - p).dot(o), b = (q1 - p).dot(o);
-  double d = a - b;
-  if (sign(d) == 0) return {};
-  return (q1 * a - q2 * b) / d;
-}
-pair<Point3, Point3> isFF(Point3 p1, Point3 o1, Point3 p2, Point3 o2) {
-  Point3 e = o1.det(o2), v = o1.det(e);
-  double d = o2.dot(v);
-  if (fabs(d) < EPS) return {};
-  Point3 q = p1 + v.dot(o2.dot(p2 - p1) / d);
-  return make_pair(q, q + e);
-}
-/*
-��ά�㵽ƽ��Ĵ��㣺
-��㵽�������Ĵ��ߣ�Ȼ��ѷ����������������ȼӵ���֪���ϡ�
-ֱ�߽�ƽ�棺
-�����㵽ƽ��Ĵ��㣬Ȼ�������ƽ⡣
-ƽ�潻ƽ�棺
-1����������������ߵķ���
-2�����ߺͷ����������ó�ƽ���ϵ��ƶ��ķ���
-3���õ���ͳ�����ƽ�Ƶľ��롣
-$$ans=S_a+\dfrac{(S_b-S_a)v_B}{\Delta_AV_B}\Delta_A$$
-����ֱ��֮�����̾��룺
-1����ֱ�߲������̾�������ֱ�ߵķ���
-2��ȷ������ֱ�ߺ�һ��ֱ�����ڵ�ƽ�档
-3������һ��ֱ�ߺ����ƽ��Ľ��㡣
-���ֱ�ߵĽ��㣺
-��Բ��ֱ�ߵĽ�����
-������������ת��
-�����������ͶӰ������ֻ��Ҫ��ת���ߡ�
-���ߺ�����ʵ����ת90�ȡ�
-ԭ��������ת90�ȵ�������Ϊx��y��Ȼ����ƽ��������ת��
-ƽ�����Ľ�Բ��
-����ͶӰ���Բ�ģ����ɶ�����뾶��
-�����Ľ�Բ��
-��ƽ����
-ֱ�ߺ��������е�ƽ�棺
-��ƽ����
-������Ĺ����棺
-������λ�����ģ�Ȼ������λ����������һ��ֱ�ߣ���ֱ����������档
-һ����8������ƽ�档
-*/
+  /**
+   * 点积
+   * a dot b == |a||b|cos theta
+   */
+  vtyp dot(const vec a, const vec b) { return a.x * b.x + a.y * b.y; }
+  /**
+   * 叉积
+   * 两个向量围成的有向面积
+   */
+  vtyp det(const vec a, const vec b) { return a.x * b.y - a.y * b.x; }
+  /**
+   * 向量夹角
+   * @return 一个[0, PI) 内的数表示角度，单位 rad
+   */
+  vtyp angle(vec a, vec b) {
+    if (det(a, b) < 0) swap(a, b);
+    vtyp res = b.ang() - a.ang();
+    if (res < 0) res += 2 * PI;
+    return res;
+  }
+
+  /**
+   * 投影
+   * @param L 直线
+   * @param p 要求投影的点
+   * @return p 在 L 上的投影坐标（即垂足）
+   */
+  point projection(line L, point p) {
+    vec d = L.p2 - L.p1;
+    return L.p1 + (dot(d, p - L.p1) / d.length()) * d.dir();
+  }
+  /**
+   * 对称点
+   * @param L 直线
+   * @param p 点
+   * @return p 关于直线 L 的对称点
+   */
+  point reflection(line L, point p) {
+    point o = projection(L, p);
+    return vtyp(2) * (o - p) + p;
+  }
+
+  /**
+   * 判断向量是否平行
+   */
+  bool parallel(vec a, vec b) { return isZero(det(a, b)); }
+  /**
+   * 判断直线是否平行
+   */
+  bool parallel(line a, line b) { return parallel(a.p2 - a.p1, b.p2 - b.p1); }
+  /**
+   * 判断向量是否垂直
+   */
+  bool orthogonal(vec a, vec b) { return isZero(dot(a, b)); }
+  /**
+   * 判断直线是否垂直
+   */
+  bool orthogonal(line a, line b) { return orthogonal(a.p2 - a.p1, b.p2 - b.p1); }
+  /**
+   * 判断点 p 是否在直线L上
+   */
+  bool online(line L, point p) { return parallel(L.p2 - L.p1, p - L.p1); }
+  /**
+   * 判断两直线是否重合
+   */
+  bool coincident(line a, line b) { return online(a, b.p1) && online(a, b.p2); }
+  /**
+   * 判断点 p 是否与有向线段共线且在反向延长线上
+   */
+  bool online_back(segment sl, point p) {
+    vec a = sl.p2 - sl.p1, b = p - sl.p1;
+    return parallel(a, b) && lt(dot(a, b), 0);
+  }
+  /**
+   * 判断点 p 是否与有向线段共线且在正向延长线上
+   */
+  bool online_front(segment sl, point p) {
+    vec a = sl.p1 - sl.p2, b = p - sl.p2; // 倒过来
+    return parallel(a, b) && lt(dot(a, b), 0);
+  }
+  /**
+   * 判断点 p 是否在线段上（含端点）
+   */
+  bool on_segment(segment sl, point p) {
+    return online(sl, p) && !online_back(sl, p) && !online_front(sl, p);
+  }
+  /**
+   * 两条直线的交点
+   * 需确保两条直线不平行
+   */
+  point intersection(line a, line b) {
+    assert(!parallel(a, b));
+    vtyp x = det(a.p1 - b.p1, b.p2 - b.p1);
+    vtyp y = det(b.p2 - b.p1, a.p2 - b.p1);
+    return a.p1 + (a.p2 - a.p1) * x / (x + y);
+  }
+  /**
+   * 判断两个线段是否相交（含边界）
+   */
+  bool check_segment_intersection(segment a, segment b) {
+    if (cg::coincident(a, b)) {
+      if (on_segment(a, b.p1) || on_segment(a, b.p2) || on_segment(b, a.p1) ||
+          on_segment(b, a.p2))
+        return true;
+      else return false;
+    } else if (cg::parallel(a, b)) {
+      return false;
+    } else {
+      point o = cg::intersection(a, b);
+      if (cg::on_segment(a, o) && cg::on_segment(b, o)) return true;
+      else return false;
+    }
+  }
+  /**
+   * 两个点的距离
+   */
+  vtyp distance(point a, point b) { return (b - a).length(); }
+  /**
+   * 点到直线的距离
+   */
+  vtyp distance(line L, point p) { return (p - projection(L, p)).length(); }
+  /**
+   * 两个线段的距离
+   */
+  vtyp distance(segment a, segment b) {
+    if (check_segment_intersection(a, b)) return 0;
+    vtyp res = distance(a.p1, b.p1);
+    res = min(res, distance(a.p1, b.p2));
+    res = min(res, distance(a.p2, b.p1));
+    res = min(res, distance(a.p2, b.p2));
+    point o;
+    if (o = projection(b, a.p1), on_segment(b, o)) res = min(res, distance(a.p1, o));
+    if (o = projection(b, a.p2), on_segment(b, o)) res = min(res, distance(a.p2, o));
+    if (o = projection(a, b.p1), on_segment(a, o)) res = min(res, distance(b.p1, o));
+    if (o = projection(a, b.p2), on_segment(a, o)) res = min(res, distance(b.p2, o));
+    return res;
+  }
+  /**
+   * 求简单多边形面积
+   * @param g 多边形顶点集
+   */
+  vtyp area(const vector<point> &g) {
+    vtyp res = 0;
+    for (unsigned i = 0; i < g.size(); i++) {
+      res += det(g[i], g[(i + 1) % g.size()]);
+    }
+    res /= 2;
+    return abs(res);
+  }
+  /**
+   * 判断是否是凸包
+   * @param g 多边形顶点集
+   */
+  bool is_convex(const vector<point> &g) {
+    if (g.size() < 3) return true;
+    int flag = 0;
+    for (unsigned i = 0; i < g.size(); i++) {
+      int j = (i + 1) % g.size(), k = (i + 2) % g.size();
+      vtyp sig = det(g[j] - g[i], g[k] - g[j]);
+      if (lt(sig, 0)) {
+        if (flag == 1) return false;
+        else flag = -1;
+      }
+      if (gt(sig, 0)) {
+        if (flag == -1) return false;
+        else flag = 1;
+      }
+    }
+    return true;
+  }
+  /**
+   * 求凸包
+   * @param g 多边形顶点集
+   */
+  vector<point> convex(vector<point> g) {
+    sort(g.begin(), g.end());
+    if (g.size() < 3) return g;
+
+    vector<bool> vis(g.size(), false);
+    vector<int> s(g.size() + 1, 0);
+    int ls = 0;
+
+    for (unsigned i = 0; i < g.size(); i++) {
+      while (ls > 1 && lt(det(g[s[ls - 1]] - g[s[ls - 2]], g[i] - g[s[ls - 1]]), 0))
+        --ls;
+      s[ls] = i, ++ls;
+    }
+    FOR(i, 0, ls - 1) vis[s[i]] = true;
+    vis[0] = false;
+    for (int i = g.size() - 1; i >= 0; i--)
+      if (!vis[i]) {
+        while (ls > 1 && lt(det(g[s[ls - 1]] - g[s[ls - 2]], g[i] - g[s[ls - 1]]), 0))
+          --ls;
+        s[ls] = i, ++ls;
+      }
+    assert(s[0] == s[ls - 1]);
+
+    vector<point> cvx;
+    FOR(i, 0, ls - 2) cvx.pb(g[s[i]]);
+    return cvx;
+  }
+  /**
+   * 求点集的最远点对距离（正确性还不太懂，也许有锅）
+   * @param v 点集
+   */
+  vtyp diameter(const vector<point> &v) {
+    vector<point> g = convex(v);
+    vtyp dist = 0;
+    unsigned pos = 0;
+    for (unsigned i = 0; i < g.size(); i++) {
+      while (pos + 1 < g.size() && distance(g[i], g[pos]) < distance(g[i], g[pos + 1]))
+        ++pos;
+      dist = max(dist, distance(g[i], g[pos]));
+    }
+    return dist;
+  }
+  /**
+   * 判断点p与多边形的包含关系
+   * @param g 多边形顶点集
+   * @return 0 表示在多边形外，1 表示在边上，2表示在多边形内
+   */
+  int polygon_point_containment(vector<point> g, point p) {
+    line L(vec(p.x - 1, p.y), p); // 水平方向的射线
+    int cnt = 0;
+    for (unsigned i = 0; i < g.size(); i++) {
+      int j = (i + 1) % g.size();
+      line e(g[i], g[j]);
+      if (on_segment(e, p)) return 1;
+      if (parallel(L, e)) {
+        // do nothing.
+      } else if (online_front(L, g[i])) {
+        if (g[i].y > g[j].y) ++cnt;
+      } else if (online_front(L, g[j])) {
+        if (g[j].y > g[i].y) ++cnt;
+      } else {
+        point o = intersection(L, e);
+        if (on_segment(e, o) && online_front(L, o)) ++cnt;
+      }
+    }
+    if (cnt % 2) return 2;
+    return 0;
+  }
+
+  struct circle {
+    point o;
+    vtyp r;
+    circle() { r = 0; }
+    circle(point _o, vtyp _r) { o = _o, r = _r; }
+  };
+  /**
+   * 判断两个圆的位置关系（切线数量）
+   * @param a 第一个圆
+   * @param b 第二个圆
+   * @return 0 表示包含，1 表示内切，2 表示相交，3 表示外切，4 表示相离
+   */
+  int check_circle_intersection(circle a, circle b) {
+    vtyp d = distance(a.o, b.o);
+    if (gt(d, a.r + b.r)) return 4;
+    if (eq(d, a.r + b.r)) return 3;
+    if (gt(d, abs(a.r - b.r))) return 2;
+    if (eq(d, abs(a.r - b.r))) return 1;
+    return 0;
+  }
+  /**
+   * 判断圆和点的位置关系
+   * @return 0 表示包含，1 表示在圆上，2 表示在圆外
+   */
+  int check_circle_point_containment(circle c, point p) {
+    vtyp d = distance(c.o, p);
+    if (lt(d, c.r)) return 0;
+    if (eq(d, c.r)) return 1;
+    return 2;
+  }
+  /**
+   * 求三角形内切圆
+   * @param a 三角形第一个顶点
+   * @param b 三角形第二个顶点
+   * @param c 三角形第三个顶点
+   * @return 一个 circle 表示内切圆
+   */
+  circle incircle(point a, point b, point c) {
+    vtyp r =
+        abs(det(a - b, a - c)) / (distance(a, b) + distance(a, c) + distance(b, c));
+    line C(a, b), B(a, c);
+    vec shiftC = (c - projection(C, c)).dir() * r;
+    vec shiftB = (b - projection(B, b)).dir() * r;
+    point o = intersection(C + shiftC, B + shiftB);
+    return circle(o, r);
+  }
+  /**
+   * 求三角形外接圆
+   * @param a 三角形第一个顶点
+   * @param b 三角形第二个顶点
+   * @param c 三角形第三个顶点
+   * @return 一个 circle 表示外接圆
+   */
+  circle outcircle(point a, point b, point c) {
+    vec vc = r90_clockwise(a - b), vb = r90_clockwise(a - c);
+    point mc = (a + b) / vtyp(2), mb = (a + c) / vtyp(2);
+    point o = intersection(line(mc, mc + vc), line(mb, mb + vb));
+    vtyp r = (o - a).length();
+    return circle(o, r);
+  }
+  /**
+   * 圆点到直线的距离
+   */
+  vtyp distance(line L, circle c) { return distance(L, c.o); }
+  /**
+   * 求直线和圆的交点。如果相切那么返回两个相同的点
+   * 不会检查是否有交点。要求你提前判定
+   * @return 一个 pair 表示两个交点
+   */
+  pair<point, point> circle_line_intersection(line L, circle c) {
+    vtyp d = distance(L, c);
+    d = sqrt(max(vtyp(0), c.r * c.r - d * d));
+    vec shift = L.dir() * d;
+    point mid = projection(L, c.o);
+    return make_pair(mid - shift, mid + shift);
+  }
+  /**
+   * 求两圆的交点。如果相切那么返回两个相同的点
+   * 不会检查是否有交点。要求你提前判定
+   * @return 一个 pair 表示两个交点
+   */
+  pair<point, point> circle_intersection(circle c1, circle c2) {
+    assert(check_circle_intersection(c1, c2) > 0);
+    assert(check_circle_intersection(c1, c2) < 4);
+    vec oo = c2.o - c1.o, ooo = r90_clockwise(oo);
+    vtyp d = oo.length();
+    vtyp cosT = (c1.r * c1.r + d * d - c2.r * c2.r) / (2 * c1.r * d);
+    point p = c1.r * cosT * oo.dir() + c1.o;
+    vec shift = c1.r * sqrt(1 - cosT * cosT) * ooo.dir();
+    return make_pair(p + shift, p - shift);
+  }
+  /**
+   * 求圆外或圆上一点到圆的切线。
+   * 不会检查是否在圆外。要求你提前判定
+   * @return 一个 pair 表示两个切点，如果是圆上的点那么返回两个相同的点
+   */
+  pair<point, point> circle_point_tangent(circle c, point p) {
+    assert(check_circle_point_containment(c, p) != 0);
+    vec op = p - c.o, oop = r90_clockwise(op);
+    vtyp d = op.length();
+    vtyp x = c.r * c.r / d;
+    point mid = c.o + op.dir() * x;
+    vec shift = oop.dir() * sqrt(c.r * c.r - x * x);
+    return make_pair(mid + shift, mid - shift);
+  }
+  /**
+   * 两个大小不同的圆的外位似中心
+   * 若这两个圆不是包含关系，那么可以理解为是两条外公切线的交点
+   */
+  point circle_outer_homothetic_center(circle c1, circle c2) {
+    assert(neq(c1.r, c2.r));
+    if (gt(c1.r, c2.r)) swap(c1, c2);
+    point p = (c1.o - c2.o) * c1.r / (c2.r - c1.r) + c1.o;
+    return p;
+  }
+  /**
+   * 两个大小不同的圆的内位似中心
+   * 若这两个圆是相离或者外切关系，那么可以理解为是两条内公切线的交点
+   */
+  point circle_inner_homothetic_center(circle c1, circle c2) {
+    point p = (c2.o - c1.o) * c1.r / (c2.r + c1.r) + c1.o;
+    return p;
+  }
+  /**
+   * 求两圆外公切线
+   * 要求两圆不能是包含关系。
+   * 如果是内切的话那么返回两条相同的线（指line的两个点分别相同）
+   */
+  pair<line, line> circle_outer_common_tangent(circle c1, circle c2) {
+    assert(check_circle_intersection(c1, c2) != 0);
+    if (neq(c1.r, c2.r)) {
+      point p = circle_outer_homothetic_center(c1, c2);
+      auto pt = circle_point_tangent(c1, p);
+      if (pt.first == pt.second) {
+        vec oo = r90_clockwise(c1.o - c2.o);
+        line t(p + oo, p);
+        return make_pair(t, t);
+      } else {
+        return make_pair(line(p, pt.first), line(p, pt.second));
+      }
+    } else {
+      vec oo = c1.o - c2.o, ooo = r90_clockwise(oo);
+      vec shift = ooo.dir() * c1.r;
+      line t(c2.o, c1.o);
+      return make_pair(t + shift, t - shift);
+    }
+  }
+  /**
+   * 求两圆内公切线
+   * 要求两圆要么相离要么外切。
+   * 如果是外切的话那么返回两条相同的线（指line的两个点分别相同）
+   */
+  pair<line, line> circle_inner_common_tangent(circle c1, circle c2) {
+    assert(check_circle_intersection(c1, c2) >= 3);
+    point p = circle_inner_homothetic_center(c1, c2);
+    auto pt = circle_point_tangent(c1, p);
+    if (pt.first == pt.second) {
+      vec oo = r90_clockwise(c1.o - c2.o);
+      line t(p + oo, p);
+      return make_pair(t, t);
+    } else {
+      return make_pair(line(p, pt.first), line(p, pt.second));
+    }
+  }
+  /**
+   * 求两圆所有公切线，去重
+   */
+  vector<line> circle_common_tangent(circle c1, circle c2) {
+    vector<line> res;
+    int typ = check_circle_intersection(c1, c2);
+    if (typ > 0) {
+      auto pt = circle_outer_common_tangent(c1, c2);
+      res.pb(pt.first);
+      if (pt.first.p2 != pt.second.p2) res.pb(pt.second);
+    }
+    if (typ >= 3) {
+      auto pt = circle_inner_common_tangent(c1, c2);
+      res.pb(pt.first);
+      if (pt.first.p2 != pt.second.p2) res.pb(pt.second);
+    }
+    return res;
+  }
+  /**
+   * 求弓形面积
+   * @param r 半径
+   * @param angle 弓形所对的圆心角，单位 rad
+   */
+  vtyp circular_segment_area(vtyp r, vtyp angle) {
+    return r * r * (angle - sin(angle)) / vtyp(2);
+  }
+  /**
+   * 求两个圆交面积
+   */
+  vtyp circle_intersection_area(circle c1, circle c2) {
+    vtyp ans = 0;
+    auto typ = check_circle_intersection(c1, c2);
+    if (typ <= 1) {
+      ans += PI * min(c1.r, c2.r) * min(c1.r, c2.r);
+    } else if (check_circle_intersection(c1, c2) < 3) {
+      auto pt = circle_intersection(c1, c2);
+      auto t1 = angle(pt.first - c1.o, pt.second - c1.o);
+      auto t2 = angle(pt.first - c2.o, pt.second - c2.o);
+      point p = intersection(line(c1.o, c2.o), line(pt.first, pt.second));
+      if (online_front(segment(c1.o, c2.o), p)) {
+        ans += circular_segment_area(c2.r, 2 * PI - t2);
+      } else {
+        ans += circular_segment_area(c2.r, t2);
+      }
+      if (online_front(segment(c2.o, c1.o), p)) {
+        ans += circular_segment_area(c1.r, 2 * PI - t1);
+      } else {
+        ans += circular_segment_area(c1.r, t1);
+      }
+    }
+    return ans;
+  }
+} // namespace cg
+using cg::circle;
+using cg::line;
+using cg::point;
+using cg::segment;
+
+// int main(){
+//   circle c1, c2;
+//   cin >> c1.o >> c1.r >> c2.o >> c2.r;
+//   auto ans = cg::circle_intersection_area(c1, c2);
+//   cout << setiosflags(ios::fixed) << setprecision(9) << ans << endl;
+//   return 0;
+// }

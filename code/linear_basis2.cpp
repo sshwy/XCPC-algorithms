@@ -1,4 +1,3 @@
-/******************heading******************/
 int n;
 long long b[70], lb;
 bool insert(long long x) { //消成对角矩阵
