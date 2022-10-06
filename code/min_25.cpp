@@ -14,8 +14,8 @@ typedef long long LL;
  * N: 要筛的值的上界
  * CNT: f1 的项数
  * COEF[CNT]: f1 对应的系数。const 指定义为全局变量数组（里面的元素可改）
- * evalF1: 计算 f1 的点值。第一个参数是点，第二个参数是要存储的数组
- * evalPrefixSumF1: 计算 f1 前缀和的点值
+ * ef1: 计算 f1 的点值。第一个参数是点，第二个参数是要存储的数组
+ * esf1: 计算 f1 前缀和的点值
  * f_pe: 计算 f 在质数幂处的值
  * MOD: 模数
  */
@@ -51,81 +51,61 @@ int main() {
   return 0;
 }
 // Min_25
-template <const LL N, const int CNT, const int COEF[CNT], void (*evalF1)(LL, int *),
-    void (*evalPrefixSumF1)(LL, int *), int (*f_pe)(int, int, LL), const int MOD>
+template <const LL N, const int CNT, const int COEF[CNT], void (*ef1)(LL, int *),
+    void (*esf1)(LL, int *), int (*f_pe)(int, int, LL), const int MOD>
 struct Min25 {
   vector<vector<int>> g, h, hs;
   vector<int> id[2], pn;
   vector<LL> val;
-  vector<bool> co;
   LL n;
   int SQRT_N, sqrt_n, tot, lp;
-  bool setFunc;
 
   Min25() {
     SQRT_N = 2 * (sqrt(N) + 5);
     tot = lp = 0;
-
     g.resize(SQRT_N, vector<int>(CNT, 0));
     h.resize(SQRT_N, vector<int>(CNT, 0));
     hs.resize(SQRT_N, vector<int>(CNT, 0));
-    id[0].resize(SQRT_N, 0);
-    id[1].resize(SQRT_N, 0);
-    val.resize(SQRT_N, 0);
-    pn.resize(SQRT_N, 0);
-    co.resize(SQRT_N, false);
+    id[0].resize(SQRT_N, 0), id[1].resize(SQRT_N, 0);
+    val.resize(SQRT_N, 0), pn.resize(SQRT_N, 0);
   }
-
   // Min_25
-
-  void prime_sieve(int lim) {
+  void init() {
+    sqrt_n = sqrt(n) + 3;
+    vector<bool> co(SQRT_N, false);
     co[0] = co[1] = 1;
-    FOR(i, 2, lim) {
+    for (int i = 2; i <= sqrt_n; i++) {
       if (!co[i]) pn[++lp] = i;
-      FOR(j, 1, lp) {
-        if (1ll * i * pn[j] > lim) break;
+      for (int j = 1; j <= lp && 1ll * i * pn[j] <= sqrt_n; j++) {
         co[i * pn[j]] = 1;
         if (i % pn[j] == 0) break;
       }
     }
-  }
-
-  inline int I(LL x) { return x <= sqrt_n ? id[0][x] : id[1][n / x]; }
-
-  void init() {
-    sqrt_n = sqrt(n) + 3;
-    prime_sieve(sqrt_n);
-    for (LL pos = 1, nex; pos <= n; pos = nex + 1) {
-      nex = n / (n / pos);
-      LL w = n / pos;
-      val[++tot] = w;
+    for (LL pos = 1, nex, w; pos <= n; pos = nex + 1) {
+      nex = n / (n / pos), w = n / pos, val[++tot] = w;
       w <= sqrt_n ? id[0][w] = tot : id[1][n / w] = tot;
-    }
-    FOR(i, 1, tot) assert(I(val[i]) == i);
+    } // FOR(i, 1, tot) assert(I(val[i]) == i);
   }
-
   void calc_h() {
     int tmp[CNT];
     FOR(i, 1, lp) {
-      evalF1(pn[i], tmp);
+      ef1(pn[i], tmp);
       FOR(j, 0, CNT - 1) {
         h[i][j] = tmp[j];
         hs[i][j] = (hs[i - 1][j] + tmp[j]) % MOD;
       }
     }
   }
-
-  int H(int i) { // 计算 sum_j f(p_j) (j <= i）
-    assert(i <= lp);
+  int H(int i) { // 计算 sum_j f(p_j) (j <= i） // assert(i <= lp);
     int res = 0;
     FOR(j, 0, CNT - 1) res = (res + 1ll * hs[i][j] * COEF[j]) % MOD;
     return res;
   }
-
+  int I(LL x) { return x <= sqrt_n ? id[0][x] : id[1][n / x]; }
   void calc_g() {
     FOR(i, 1, tot) { //当i=0
       int tmp[CNT];
-      evalPrefixSumF1(val[i], tmp);
+      esf1(val[i], tmp);
       FOR(j, 0, CNT - 1) {
         g[i][j] = (tmp[j] - 1 + MOD) % MOD; // 对于积性函数来说必然有 f(1) = 1
       }
@@ -135,19 +115,17 @@ struct Min25 {
         if (1ll * pn[i] * pn[i] > val[j]) break;
         int k = I(val[j] / pn[i]);
         FOR(t, 0, CNT - 1) {
-          g[j][t] = (g[j][t] - 1ll * h[i][t] * (g[k][t] - hs[i - 1][t])) % MOD;
-          g[j][t] = (g[j][t] + MOD) % MOD;
+          g[j][t] =
+              (g[j][t] - 1ll * h[i][t] * (g[k][t] - hs[i - 1][t]) % MOD + MOD) % MOD;
         }
       }
     }
   }
-
   int G(LL x) { // 计算 sum f(p) (p <= x 且 p 是质数）
     int res = 0;
     FOR(i, 0, CNT - 1) res = (res + 1ll * g[I(x)][i] * COEF[i]) % MOD;
     return res;
   }
-
   int S(int i, LL m) {
     if (m < pn[i] || m <= 1) return 0;
     LL res = (G(m) - H(i - 1) + MOD) % MOD;
@@ -166,10 +144,7 @@ struct Min25 {
   }
 
   int sieve(LL _n) {
-    n = _n;
-    init();
-    calc_h();
-    calc_g();
+    n = _n, init(), calc_h(), calc_g();
     return (S(1, n) + 1) % MOD;
   }
 };
