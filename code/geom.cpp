@@ -118,7 +118,7 @@ double nearest(P p1, P p2, P q) {
 double disSS(P p1, P p2, P q1, P q2) {
   if (isSS(p1, p2, q1, q2)) return 0;
   return min(min(nearest(p1, p2, q1), nearest(p1, p2, q2)),
-      min(nearest(q1, q2, p1), nearest(q1, q2, p2)));
+    min(nearest(q1, q2, p1), nearest(q1, q2, p2)));
 }
 
 double rad(P p1, P p2) { return atan2l(p1.det(p2), p1.dot(p2)); }
@@ -220,7 +220,7 @@ double min_dist(vector<P> &ps, int l, int r) {
   rep(i, l, r) if (abs(ps[i].x - ps[m].x) <= ret) qs.pb(ps[i]);
   sort(qs.begin(), qs.end(), [](P a, P b) -> bool { return a.y < b.y; });
   rep(i, 1, qs.size()) for (int j = i - 1; j >= 0 && qs[j].y >= qs[i].y - ret; --j)
-      ret = min(ret, qs[i].distTo(qs[j]));
+    ret = min(ret, qs[i].distTo(qs[j]));
   return ret;
 }
 
@@ -243,7 +243,7 @@ vector<P> isCL(P o, double r, P p1, P p2) {
 }
 
 vector<P> isCC(P o1, double r1, P o2,
-    double r2) { // need to check whether two circles are the same
+  double r2) { // need to check whether two circles are the same
   double d = o1.distTo(o2);
   if (cmp(d, r1 + r2) == 1) return {};
   if (cmp(d, abs(r1 - r2)) == -1) return {};
@@ -271,7 +271,7 @@ vector<L> extanCC(P o1, double r1, P o2, double r2) {
     P p = (o2 * r1 - o1 * r2) / (r1 - r2);
     vector<P> ps = tanCP(o1, r1, p), qs = tanCP(o2, r2, p);
     rep(i, 0, min(ps.size(), qs.size()))
-        ret.pb(L(ps[i], qs[i])); // c1 counter-clock wise
+      ret.pb(L(ps[i], qs[i])); // c1 counter-clock wise
   }
   return ret;
 }
@@ -281,7 +281,7 @@ vector<L> intanCC(P o1, double r1, P o2, double r2) {
   P p = (o1 * r2 + o2 * r1) / (r1 + r2);
   vector<P> ps = tanCP(o1, r1, p), qs = tanCP(o2, r2, p);
   rep(i, 0, min(ps.size(), qs.size()))
-      ret.pb(L(ps[i], qs[i])); // c1 counter-clock wise
+    ret.pb(L(ps[i], qs[i])); // c1 counter-clock wise
   return ret;
 }
 

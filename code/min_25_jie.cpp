@@ -27,8 +27,8 @@ void init() {
   }
   for (int i = 1; i <= ncnt; i++)
     for (int j = 1; j <= m && (LL)pr[i] * pr[i] <= a[j]; j++)
-      g[j] = (g[j] - (LL)f1(pr[i]) * (g[ID(a[j] / pr[i])] - sum[i - 1]) % mod + mod) %
-             mod;
+      g[j] =
+        (g[j] - (LL)f1(pr[i]) * (g[ID(a[j] / pr[i])] - sum[i - 1]) % mod + mod) % mod;
 }
 
 int solve(LL n, int m) {

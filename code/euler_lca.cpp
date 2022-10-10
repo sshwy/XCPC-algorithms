@@ -29,8 +29,8 @@ void bin_exp() {
     int ilim = totime - (1 << j) + 1;
     FOR(i, 1, ilim) {
       st[i][j] = dep[st[i][j - 1]] < dep[st[i + (1 << j - 1)][j - 1]]
-                     ? st[i][j - 1]
-                     : st[i + (1 << j - 1)][j - 1];
+                   ? st[i][j - 1]
+                   : st[i + (1 << j - 1)][j - 1];
     }
   }
 }

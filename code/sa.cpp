@@ -22,7 +22,7 @@ struct SA {
       rk[sa[1]] = tot = 1;
       for (int i = 2; i <= l; i++)
         rk[sa[i]] =
-            t[sa[i - 1]] == t[sa[i]] && t[sa[i - 1] + j] == t[sa[i] + j] ? tot : ++tot;
+          t[sa[i - 1]] == t[sa[i]] && t[sa[i - 1] + j] == t[sa[i] + j] ? tot : ++tot;
     }
   }
   // 下面是 height 的部分

@@ -7,7 +7,7 @@ int main() {
   FOR(i, 1, ls) {
     if (i < R) d[i] = min(R - i, d[L + R - i]);
     while (
-        0 < i - d[i] - 1 && i + d[i] + 1 <= ls && s[i - d[i] - 1] == s[i + d[i] + 1])
+      0 < i - d[i] - 1 && i + d[i] + 1 <= ls && s[i - d[i] - 1] == s[i + d[i] + 1])
       ++d[i];
     if (i + d[i] > R) L = i - d[i], R = i + d[i];
     assert(L > 0);

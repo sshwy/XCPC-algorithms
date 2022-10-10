@@ -52,7 +52,7 @@ int main() {
 }
 // Min_25
 template <const LL N, const int CNT, const int COEF[CNT], void (*ef1)(LL, int *),
-    void (*esf1)(LL, int *), int (*f_pe)(int, int, LL), const int MOD>
+  void (*esf1)(LL, int *), int (*f_pe)(int, int, LL), const int MOD>
 struct Min25 {
   vector<vector<int>> g, h, hs;
   vector<int> id[2], pn;
@@ -116,7 +116,7 @@ struct Min25 {
         int k = I(val[j] / pn[i]);
         FOR(t, 0, CNT - 1) {
           g[j][t] =
-              (g[j][t] - 1ll * h[i][t] * (g[k][t] - hs[i - 1][t]) % MOD + MOD) % MOD;
+            (g[j][t] - 1ll * h[i][t] * (g[k][t] - hs[i - 1][t]) % MOD + MOD) % MOD;
         }
       }
     }

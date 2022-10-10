@@ -2,8 +2,8 @@ namespace IO {
   char nc() {
     static char bf[100000], *p1 = bf, *p2 = bf;
     return p1 == p2 && (p2 = (p1 = bf) + fread(bf, 1, 100000, stdin), p1 == p2)
-               ? EOF
-               : *p1++;
+             ? EOF
+             : *p1++;
   }
   int rd() {
     int res = 0;

@@ -9,7 +9,7 @@ struct sqrtNum {
   sqrtNum(int _a, int _b, int _w, int _p) { a = _a, b = _b, W = _w, P = _p; }
   sqrtNum operator*(const sqrtNum &x) const {
     return sqrtNum((1ll * a * x.a % P + 1ll * b * x.b % P * W) % P,
-        (1ll * a * x.b % P + 1ll * b * x.a) % P, W, P);
+      (1ll * a * x.b % P + 1ll * b * x.a) % P, W, P);
   }
 };
 int quad_res(int n, int p) {
