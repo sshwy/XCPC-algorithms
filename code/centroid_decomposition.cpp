@@ -11,7 +11,7 @@ void Size(int u, int p) {
   sz[u] = 1, sm[u] = 0;
   for (int i = h[u]; i; i = e[i].nex) {
     int v = e[i].t;
-    if (!Cut[v] && v != p) { Size(v, u), sz[u] += sz[v], sm[u] = max(sm[u], sz[v]); }
+    if (!Cut[v] && v != p) Size(v, u), sz[u] += sz[v], sm[u] = max(sm[u], sz[v]);
   }
 }
 int Core(int u, int p, int T) {

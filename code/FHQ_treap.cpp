@@ -45,10 +45,9 @@ struct Treap {
   }
   int kth(int k) { //查询排名为k的数
     int u = root;
-    while (k != sz[ch[u][0]] + 1) {
+    while (k != sz[ch[u][0]] + 1)
       if (k <= sz[ch[u][0]]) u = ch[u][0];
       else k -= sz[ch[u][0]] + 1, u = ch[u][1];
-    }
     return val[u];
   }
   int pre(int v) { return kth(rank(v) - 1); } //严格前驱

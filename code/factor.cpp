@@ -93,9 +93,8 @@ namespace Factor {
     }
   }
   void _factor(ll n) {
-    for (int i = 0; i < cnt; i++) {
+    for (int i = 0; i < cnt; i++)
       if (n % fac[i] == 0) n /= fac[i], fac[cnt++] = fac[i];
-    }
     if (n <= psize) {
       for (; n != 1; n /= p[n]) fac[cnt++] = p[n];
       return;

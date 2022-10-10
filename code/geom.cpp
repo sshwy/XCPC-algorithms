@@ -307,19 +307,13 @@ bool sameDir(L l0, L l1) {
 }
 
 bool cmp(P a, P b) {
-  if (a.quad() != b.quad()) {
-    return a.quad() < b.quad();
-  } else {
-    return sign(a.det(b)) > 0;
-  }
+  if (a.quad() != b.quad()) return a.quad() < b.quad();
+  else return sign(a.det(b)) > 0;
 }
 
 bool operator<(L l0, L l1) {
-  if (sameDir(l0, l1)) {
-    return l1.include(l0[0]);
-  } else {
-    return cmp(l0.dir(), l1.dir());
-  }
+  if (sameDir(l0, l1)) return l1.include(l0[0]);
+  else return cmp(l0.dir(), l1.dir());
 }
 
 bool check(L u, L v, L w) { return w.include(isLL(u, v)); }

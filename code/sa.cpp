@@ -39,9 +39,8 @@ struct SA {
     for (int i = 1; i <= l; i++) st[i][0] = h[sa[i]];
     for (int j = 1; (1 << j) <= l; j++) {
       int step = 1 << (j - 1);
-      for (int i = 1; i + step <= l; i++) {
+      for (int i = 1; i + step <= l; i++)
         st[i][j] = min(st[i][j - 1], st[i + step][j - 1]);
-      }
     }
   }
   int lg2[N];
