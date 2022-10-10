@@ -1,15 +1,15 @@
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 # 语言: None Cpp Java Objc Protp
+
 Language: Cpp 
 
 # Only merge empty blocks.
-AllowShortBlocksOnASingleLine: Empty
 # 基于那个配置文件
 BasedOnStyle: LLVM
 # 访问说明符的偏移(public private)
 AccessModifierOffset: -2
 # 括号之后,水平对齐参数: Align DontAlign AlwaysBreak
-AlignAfterOpenBracket: Align
+AlignAfterOpenBracket: DontAlign
 # 连续的赋值时,对齐所有的等号
 AlignConsecutiveAssignments: false
 # 连续声明时，对齐所有声明的变量名
@@ -23,13 +23,15 @@ AlignTrailingComments: true
 # 允许函数声明的所有参数在放在下一行  
 AllowAllParametersOfDeclarationOnNextLine: true
 # 允许短的块放在同一行  
-AllowShortBlocksOnASingleLine : true
+AllowShortBlocksOnASingleLine: Always
 # 允许短的case标签放在同一行
 AllowShortCaseLabelsOnASingleLine: true
 # 是否允许短if单行 If true, if (a) return; 可以放到同一行
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 # 允许短的循环保持在同一行   
 AllowShortLoopsOnASingleLine: true
+# 是否允许短方法单行
+AllowShortFunctionsOnASingleLine: All
 # 每行字符的限制，0表示没有限制  
 ColumnLimit: 100
 # 描述具有特殊意义的注释的正则表达式，它不应该被分割为多行或以其它方式改变
@@ -44,8 +46,6 @@ MaxEmptyLinesToKeep: 1
 ObjCSpaceAfterProperty: true
 # OC block后面的缩进
 ObjCBlockIndentWidth: 2
-# 是否允许短方法单行
-AllowShortFunctionsOnASingleLine: true
 # 中括号两边空格 [] 
 SpacesInSquareBrackets: false
 # 小括号两边添加空格
@@ -80,6 +80,8 @@ AlignTrailingComments: false
 # The column limit.
 ColumnLimit: 87
 # Indent width for line continuations.
-ContinuationIndentWidth: 4
+ContinuationIndentWidth: 2
 # Don’t align, instead use ContinuationIndentWidth
 AlignAfterOpenBracket: DontAlign
+
+RemoveBracesLLVM: true
