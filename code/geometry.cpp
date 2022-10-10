@@ -122,12 +122,6 @@ namespace cg {
   }
   // 两条直线的交点。需确保两条直线不平行
   Pt inter(Ln a, Ln b) {
-    if (parallel(a, b)) {
-      printf("a: (%.2Lf, %.2Lf) -> (%.2Lf, %.2Lf), ang = %.2Lf\n", a.st.x, a.st.y,
-        a.ed.x, a.ed.y, a.vec().ang());
-      printf("b: (%.2Lf, %.2Lf) -> (%.2Lf, %.2Lf), ang = %.2Lf\n", b.st.x, b.st.y,
-        b.ed.x, b.ed.y, b.vec().ang());
-    }
     assert(!parallel(a, b));
     Vt x = det(a.st - b.st, b.ed - b.st), y = det(b.ed - b.st, a.ed - b.st);
     return a.st + (a.ed - a.st) * x / (x + y);
@@ -475,7 +469,7 @@ namespace cg {
       }
       // 已经封闭，这条没用
       if (ql < qr && gt(qA[qr] - PI, qA[ql]) &&
-        in_left_include(ln, inter(qL[ql], qL[qr])))
+          in_left_include(ln, inter(qL[ql], qL[qr])))
         continue;
       ++qr, qA[qr] = ang, qL[qr] = ln;
       if (ql < qr) qP[qr] = inter(qL[qr - 1], qL[qr]);
