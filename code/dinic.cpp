@@ -1,46 +1,47 @@
-const int N = 5e5 + 5, M = 5e5 + 5, INF = 0x3f3f3f3f;
+const int N = 5e4 + 5, M = N * 2, INF = 0x3f3f3f3f;
+
 struct qxx {
   int nex, t, v;
 };
 qxx e[M];
-int h[N], cnt = 1;
-void add_path(int f, int t, int v) { e[++cnt] = (qxx){h[f], t, v}, h[f] = cnt; }
+int h[N], hh[N], le = 1;
+void add_path(int f, int t, int v) { e[++le] = (qxx){h[f], t, v}, h[f] = le; }
 void add_flow(int f, int t, int v) { add_path(f, t, v), add_path(t, f, 0); }
-void add_dual_flow(int f, int t, int v) { add_path(f, t, v), add_path(t, f, v); }
+void add_bidir_flow(int f, int t, int v) { add_path(f, t, v), add_path(t, f, v); }
+#define FORe(i, u, v, w) \
+  for (int i = h[u], v, w; v = e[i].t, w = e[i].v, i; i = e[i].nex)
+#define FORflowe(i, u, v, w) \
+  for (int &i = hh[u], v, w; v = e[i].t, w = e[i].v, i; i = e[i].nex)
 
-namespace DINIC {
-  int s, t, maxflow, d[N];
-  queue<int> q;
-  bool bfs() {
-    memset(d, 0, sizeof(d));
-    q.push(s), d[s] = 1;
-    while (!q.empty()) {
-      int u = q.front();
-      q.pop();
-      for (int i = h[u]; i; i = e[i].nex) {
-        const int &v = e[i].t, &w = e[i].v;
-        if (!d[v] && w) d[v] = d[u] + 1, q.push(v);
-      }
-    }
-    return d[t];
+int s, t, dep[N];
+queue<int> q;
+
+bool bfs() {
+  memset(dep, 0, sizeof(dep)); // 可以优化
+  dep[s] = 1, q.push(s);
+  while (!q.empty()) {
+    int u = q.front();
+    q.pop();
+    FORe(i, u, v, w) if (!dep[v] && w) dep[v] = dep[u] + 1, q.push(v);
   }
-  int dinic(int u, int flow) {
-    if (u == t) return flow;
-    int k, rest = flow;
-    for (int i = h[u]; i && rest; i = e[i].nex) {
-      const int &v = e[i].t, &w = e[i].v;
-      if (!w || d[v] != d[u] + 1) continue;
-      k = dinic(v, min(rest, w));
-      if (k) e[i].v -= k, e[i ^ 1].v += k, rest -= k;
-      else d[v] = 0;
-    }
-    return flow - rest;
+  return dep[t] != 0;
+}
+int dfs(int u, int flow) {
+  if (u == t || !flow) return flow;
+  int rest = flow;
+  FORflowe(i, u, v, w) {
+    if (!w || dep[v] != dep[u] + 1) continue;
+    int k = dfs(v, min(rest, w));
+    e[i].v -= k, e[i ^ 1].v += k, rest -= k;
+    if (!rest) break;
   }
-  void go() {
-    while (bfs())
-      for (int i; i = dinic(s, INF);) maxflow += i;
+  return flow - rest;
+}
+int dinic() {
+  int maxflow = 0;
+  while (bfs()) {
+    memcpy(hh, h, sizeof(h)); // 可以优化
+    for (int x; (x = dfs(s, INF));) maxflow += x;
   }
-} // namespace DINIC
-/*
- * add_dual_flow:无向边的流（即双向可流）
- */
+  return maxflow;
+}

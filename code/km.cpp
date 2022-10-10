@@ -15,15 +15,8 @@ bool vl[N], vr[N];
 
 bool push(int v) { // v in L。找到増广路则返回 true
   vl[v] = true;
-  if (toR[v]) { // 存在与 v 匹配的点，就入队
-    q[++qr] = toR[v];
-    vr[toR[v]] = true;
-    return false;
-  }
-  while (v) { // 找到増广路，就増广
-    toR[v] = pre[v];
-    swap(v, toL[pre[v]]);
-  }
+  if (toR[v]) return q[++qr] = toR[v], vr[toR[v]] = true, false; // 存在与 v 匹配的点
+  while (v) toR[v] = pre[v], swap(v, toL[pre[v]]); // 找到増广路，就増广
   return true;
 }
 void bfs(int s) { // s in R
