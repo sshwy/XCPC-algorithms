@@ -54,18 +54,3 @@ struct Treap {
   int pre(int v) { return kth(rank(v) - 1); } //严格前驱
   int suc(int v) { return kth(rank(v + 1)); } //严格后继
 } treap;
-
-int main() {
-  scanf("%d", &n);
-  for (int i = 1; i <= n; i++) {
-    int opt, x;
-    scanf("%d%d", &opt, &x);
-    if (opt == 1) treap.insert(x);
-    else if (opt == 2) treap.del(x);
-    else if (opt == 3) printf("%d\n", treap.rank(x));
-    else if (opt == 4) printf("%d\n", treap.kth(x));
-    else if (opt == 5) printf("%d\n", treap.pre(x));
-    else printf("%d\n", treap.suc(x));
-  }
-  return 0;
-}

@@ -1,3 +1,4 @@
+// 最大费用最大流！
 namespace MCMF {
   struct qxx {
     int nex, t, v, c;
@@ -43,6 +44,3 @@ namespace MCMF {
     while (spfa()) update();
   }
 } // namespace MCMF
-/*
- * 注意，本板子是最大费用最大流！
- */

@@ -29,10 +29,7 @@ namespace Factor {
       }
     }
   }
-  void init(int ps) {
-    psize = ps;
-    prime_table();
-  }
+  void init(int ps) { psize = ps, prime_table(); }
   ll powl(ll a, ll n, ll p) {
     ll ans = 1;
     for (; n; n >>= 1) {
@@ -78,12 +75,8 @@ namespace Factor {
     for (;;) {
       ll X = rand() % n, Y, Z, T = 1, *lY = a, *lX = lY;
       int tmp = 20;
-      C = rand() % 10 + 3;
-      X = mul(X, X, n) + C;
-      *(lY++) = X;
-      lX++;
-      Y = mul(X, X, n) + C;
-      *(lY++) = Y;
+      C = rand() % 10 + 3, X = mul(X, X, n) + C;
+      *(lY++) = X, lX++, Y = mul(X, X, n) + C, *(lY++) = Y;
       for (; X != Y;) {
         ll t = X - Y + n;
         Z = mul(T, t, n);
@@ -94,10 +87,8 @@ namespace Factor {
           Z = gcd(Z, n);
           if (Z != 1 && Z != n) return Z;
         }
-        T = Z;
-        Y = *(lY++) = mul(Y, Y, n) + C;
-        Y = *(lY++) = mul(Y, Y, n) + C;
-        X = *(lX++);
+        T = Z, Y = *(lY++) = mul(Y, Y, n) + C;
+        Y = *(lY++) = mul(Y, Y, n) + C, X = *(lX++);
       }
     }
   }
@@ -112,8 +103,7 @@ namespace Factor {
     if (miller(n)) fac[cnt++] = n;
     else {
       ll x = rho(n);
-      _factor(x);
-      _factor(n / x);
+      _factor(x), _factor(n / x);
     }
   }
   void dfs(ll x, int dep) {
@@ -135,15 +125,11 @@ namespace Factor {
     return d;
   }
   vector<ll> factor(ll n) {
-    cnt = 0;
-    _factor(n);
-    norm();
+    cnt = 0, _factor(n), norm();
     return getd();
   }
   vector<PLL> factorG(ll n) {
-    cnt = 0;
-    _factor(n);
-    norm();
+    cnt = 0, _factor(n), norm();
     vector<PLL> d;
     rep(i, 0, _cnt) d.pb(mp(_pr[i], _e[i]));
     return d;

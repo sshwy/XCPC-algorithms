@@ -1,11 +1,9 @@
+typedef vector<int> Poly;
 int pw(int a, int m) {
   int res = 1;
   while (m) m & 1 ? res = 1ll * res * a % P : 0, a = 1ll * a * a % P, m >>= 1;
   return res;
 }
-
-typedef vector<int> Poly;
-
 Poly operator-(const Poly &p, const Poly &q) {
   Poly res = p;
   res.resize(max(p.size(), q.size()), 0);
@@ -27,8 +25,7 @@ Poly operator*(const Poly &p, const Poly &q) {
   return res;
 }
 Poly operator%(const Poly &p, const Poly &q) { // mod
-  assert(q.size());
-  Poly res = p;
+  Poly res = p; // assert(q.size());
   while (res.size() >= q.size()) {
     int d = res.size() - q.size();
     int rate = res.back() * 1ll * pw(q.back(), P - 2) % P;
@@ -76,19 +73,14 @@ Poly characteristic_polynomial(int M[N][N], int n) { //求M的特征多项式
     FOR(i, j + 2, n) if (M[i][j]) {
       int rate = M[i][j] * 1ll * pw(M[j + 1][j], P - 2) % P;
       FOR(k, 1, n)
-      M[i][k] = (M[i][k] - M[j + 1][k] * 1ll * rate % P + P) %
-                P; // R[i]   = R[i]-rate*R[j+1]
-      FOR(k, 1, n)
-      M[k][j + 1] =
-          (M[k][j + 1] + M[k][i] * 1ll * rate % P) % P; // C[j+1] = C[j+1]+rate*C[i]
+      M[i][k] = (M[i][k] - M[j + 1][k] * 1ll * rate % P + P) % P;
+      FOR(k, 1, n) M[k][j + 1] = (M[k][j + 1] + M[k][i] * 1ll * rate % P) % P;
     }
-  }
-  assert(x == det(M, n));
+  } // assert(x == det(M, n));
   // 2. 计算特征多项式：即(xI-A)的行列式
   p[n + 1] = Poly(1, 1);
   ROF(i, n, 1) {
     Poly s, t;
-
     t = Poly(1, P - M[i][n]);
     if (i == n) t.pb(1); // x-M[n][n]
     s = p[n + 1] * t;

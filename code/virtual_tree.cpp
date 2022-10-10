@@ -2,8 +2,7 @@ const int N = 5e5 + 5;
 
 int n;
 vector<int> g[N];
-int dep[N], fa[N][20];
-int dfn[N], totdfn;
+int dep[N], fa[N][20], dfn[N], totdfn;
 void dfs(int u, int p) {
   dep[u] = dep[p] + 1, fa[u][0] = p, dfn[u] = ++totdfn;
   FOR(j, 1, 19) {
@@ -24,10 +23,7 @@ int distance(int x, int y) { return dep[x] + dep[y] - dep[lca(x, y)] * 2; }
 
 typedef pair<int, int> pii;
 vector<pii> vt[N];
-void VT_addpath(int u, int v, int w) {
-  vt[u].pb({v, w});
-  vt[v].pb({u, w});
-}
+void VT_addpath(int u, int v, int w) { vt[u].pb({v, w}), vt[v].pb({u, w}); }
 
 int s[N], tp;
 void build_VT(vector<int> &V) { //建虚树并把点集更新到V里

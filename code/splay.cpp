@@ -9,23 +9,16 @@ struct Splay {
     return tot;
   }
   Splay() {
-    tot = 0;
-    new_node(-INF), new_node(INF);
-    pa[1] = 2, ch[2][0] = 1, root = 2;
+    tot = 0, new_node(-INF), new_node(INF), pa[1] = 2, ch[2][0] = 1, root = 2;
   }
   bool get(int u) { return ch[pa[u]][1] == u; }
   void pushup(int u) { sz[u] = sz[ch[u][0]] + sz[ch[u][1]] + 1; }
   void node_rv(int u) {
     if (!u) return;
-    swap(ch[u][0], ch[u][1]);
-    rv[u] ^= 1;
+    swap(ch[u][0], ch[u][1]), rv[u] ^= 1;
   }
   void pushdown(int u) {
-    if (rv[u]) {
-      node_rv(ch[u][0]);
-      node_rv(ch[u][1]);
-      rv[u] = 0;
-    }
+    if (rv[u]) node_rv(ch[u][0]), node_rv(ch[u][1]), rv[u] = 0;
   }
   void rotate(int u) {
     int p = pa[u], pp = pa[p], gu = get(u);
