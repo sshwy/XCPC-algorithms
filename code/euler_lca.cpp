@@ -7,23 +7,21 @@ qxx e[N * 2];
 int h[N], le;
 void add_path(int f, int t) { e[++le] = (qxx){h[f], t}, h[f] = le; }
 
-int bg[N], ed[N], totime, dep[N], st[N * 2][20];
+int bg[N], ed[N], tot, dep[N], st[N * 2][20];
 void dfs(int u, int p) {
-  dep[u] = dep[p] + 1;
-  bg[u] = ++totime;
-  st[totime][0] = u;
+  dep[u] = dep[p] + 1, bg[u] = ++tot, st[tot][0] = u;
   for (int i = h[u]; i; i = e[i].nex) {
     const int v = e[i].t;
     if (v == p) continue;
     dfs(v, u);
-    st[++totime][0] = u;
+    st[++tot][0] = u;
   }
-  ed[u] = totime;
+  ed[u] = tot;
 }
 void bin_exp() {
   FOR(j, 1, 19) {
-    if ((1 << j) > totime) break;
-    int ilim = totime - (1 << j) + 1;
+    if ((1 << j) > tot) break;
+    int ilim = tot - (1 << j) + 1;
     FOR(i, 1, ilim) {
       if (dep[st[i][j - 1]] < dep[st[i + (1 << j - 1)][j - 1]])
         st[i][j] = st[i][j - 1];

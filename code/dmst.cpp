@@ -1,13 +1,11 @@
 #include "head.h"
-/**
- * Chu-Liu/Edmonds' algorithm
- * 计算有向图（允许重边、不允许自环）给定根的最小权外向生成树（最小树形图）
- * vector<Edge> buildFrom(n, r, ve): n 个点，边集是 ve，根是 r 的最小权外向生成树
- *   若无解则返回一个空的 vector
- *   要求 ve 非空
- *
- * Usage:
- */
+/// Chu-Liu/Edmonds' algorithm
+/// 计算有向图（允许重边、不允许自环）给定根的最小权外向生成树（最小树形图）
+/// vector<Edge> buildFrom(n, r, ve): n 个点，边集是 ve，根是 r 的最小权外向生成树
+///   若无解则返回一个空的 vector
+///   要求 ve 非空
+///
+/// Usage:
 const int N = 115, M = 10004;
 DirectedMST<N, M> DMST;
 int n, m, r;
@@ -16,19 +14,16 @@ int main() {
   scanf("%d%d%d", &n, &m, &r);
   FOR(i, 1, m) {
     int u, v, w;
-    scanf("%d%d%d", &u, &v, &w);
-    E.push_back(Edge(u, v, w));
+    scanf("%d%d%d", &u, &v, &w), E.push_back(Edge(u, v, w));
   }
   auto Et = DMST.buildFrom(n, r, E);
 
-  if (Et.empty()) {
-    puts("-1");
-  } else {
+  if (Et.empty()) puts("-1");
+  else {
     int ans = 0;
     for (auto e : Et) ans += e.w;
     printf("%d\n", ans);
   }
-
   return 0;
 }
 // Algorithm

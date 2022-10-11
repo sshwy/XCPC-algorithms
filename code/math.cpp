@@ -1,4 +1,7 @@
 #include "head.h"
+/// powmod(int,int,int) 32位整型快速幂
+/// mul(LL,LL,LL) 64位长整型数的乘法运算
+/// powmod(LL,LL,LL) 64位长整型数的快速幂
 namespace math {
   int powmod(int a, int b, int mod) {
     int res = 1;
@@ -71,14 +74,7 @@ namespace math {
   LL calc(LL x) {
     if (Miller(x)) return x;
     LL fsf = 0; // while((fsf=rho(x,rand()%x))==1);
-    while ((fsf = rho(x, 2)) == 1)
-      ;
+    while ((fsf = rho(x, 2)) == 1) {}
     return max(calc(fsf), calc(x / fsf));
   }
 } // namespace math
-/*
- * 不知从何处拉来的强大板子
- * func.powmod(int,int,int) 32位整型快速幂
- * func.mul(LL,LL,LL) 64位长整型数的乘法运算
- * func.powmod(LL,LL,LL) 64位长整型数的快速幂
- */

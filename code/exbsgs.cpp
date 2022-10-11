@@ -1,5 +1,6 @@
 #include "head.h"
-namespace EXBSGS {
+/// exbsgs: 求a^x=b mod p 的最小非负整数解。-1表示无解
+namespace exbsgs {
   const LL SZ = 433337;
   struct hash_map {
     struct data {
@@ -67,7 +68,4 @@ namespace EXBSGS {
     LL res = bsgs(a, b, p);
     return ~res ? res + d : -1;
   }
-} // namespace EXBSGS
-/*
- * exbsgs: 求a^x=b mod p 的最小非负整数解。-1表示无解
- */
+} // namespace exbsgs

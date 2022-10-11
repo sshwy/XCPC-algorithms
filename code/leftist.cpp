@@ -2,8 +2,7 @@
 const int SZ = 2e5 + 5;
 int lc[SZ], rc[SZ], val[SZ], dep[SZ], tot;
 int new_node(int v) {
-  ++tot, val[tot] = v, lc[tot] = rc[tot] = 0, dep[tot] = 0;
-  return tot;
+  return ++tot, val[tot] = v, lc[tot] = rc[tot] = 0, dep[tot] = 0, tot;
 }
 int merge(int x, int y) {
   if (!x || !y) return x + y;
@@ -14,7 +13,4 @@ int merge(int x, int y) {
   return x;
 }
 int getmin(int x) { return val[x]; }
-int pop(int x) {
-  val[x] = -1;
-  return merge(lc[x], rc[x]);
-}
+int pop(int x) { return val[x] = -1, merge(lc[x], rc[x]); }

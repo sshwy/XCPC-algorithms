@@ -33,9 +33,8 @@ struct SAM {
   void insert(int tu, int x) {
     int v = T::tr[tu][x], p = last[tu], u = tr[p][x];
     if (!u) {
-      u = ++tot;
+      u = ++tot, len[u] = len[p] + 1;
       tnode[u] = v;
-      len[u] = len[p] + 1;
       while (p && !tr[p][x]) tr[p][x] = u, p = fail[p];
     }
     last[v] = u;
@@ -45,8 +44,7 @@ struct SAM {
       if (len[q] == len[p] + 1) fail[u] = q;
       else {
         int cq = ++tot;
-        len[cq] = len[p] + 1;
-        fail[cq] = fail[q];
+        len[cq] = len[p] + 1, fail[cq] = fail[q];
         tnode[cq] = tnode[q];
         memcpy(tr[cq], tr[q], sizeof(tr[q]));
         fail[q] = fail[u] = cq;

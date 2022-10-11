@@ -104,20 +104,17 @@ struct Min25 {
         g[i][j] = (tmp[j] - 1 + MOD) % MOD; // 对于积性函数来说必然有 f(1) = 1
       }
     }
-    FOR(i, 1, lp) { // pn[i]
-      FOR(j, 1, tot) {
-        if (1ll * pn[i] * pn[i] > val[j]) break;
-        int k = I(val[j] / pn[i]);
-        FOR(t, 0, CNT - 1) {
-          g[j][t] =
-            (g[j][t] - 1ll * h[i][t] * (g[k][t] - hs[i - 1][t]) % MOD + MOD) % MOD;
-        }
+    FOR(i, 1, lp) FOR(j, 1, tot) { // pn[i]
+      if (1ll * pn[i] * pn[i] > val[j]) break;
+      int k = I(val[j] / pn[i]);
+      FOR(t, 0, CNT - 1) {
+        g[j][t] = (g[j][t] - (LL)h[i][t] * (g[k][t] - hs[i - 1][t]) % MOD + MOD) % MOD;
       }
     }
   }
   int G(LL x) { // 计算 sum f(p) (p <= x 且 p 是质数）
     int res = 0;
-    FOR(i, 0, CNT - 1) res = (res + 1ll * g[I(x)][i] * COEF[i]) % MOD;
+    FOR(i, 0, CNT - 1) res = (res + (LL)g[I(x)][i] * COEF[i]) % MOD;
     return res;
   }
   int S(int i, LL m) {
@@ -129,9 +126,9 @@ struct Min25 {
       FOR(e, 1, 100) {
         pje *= pn[j], pje1 *= pn[j];
         if (pje1 > m) break;
-        res += 1ll * f_pe(pn[j], e, pje) * S(j + 1, m / pje) % MOD +
-               f_pe(pn[j], e + 1, pje1);
-        res %= MOD;
+        res +=
+          (LL)f_pe(pn[j], e, pje) * S(j + 1, m / pje) % MOD + f_pe(pn[j], e + 1, pje1);
+        res = (res % MOD + MOD) % MOD;
       }
     }
     return res;

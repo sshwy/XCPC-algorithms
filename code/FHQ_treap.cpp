@@ -3,8 +3,7 @@ using namespace std;
 const int N = 1e5 + 5, SZ = N;
 struct Treap {
   int seed = 1, root, tot;
-  int ch[SZ][2];
-  int val[SZ], rnd[SZ], sz[SZ]; // sz:子树大小
+  int ch[SZ][2], val[SZ], rnd[SZ], sz[SZ]; // sz:子树大小
 
   int rrand() { return seed = seed * 482711; }
   void pushup(int u) { sz[u] = sz[ch[u][0]] + sz[ch[u][1]] + 1; }

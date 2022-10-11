@@ -1,4 +1,6 @@
 #include "head.h"
+/// dft(f,len,typ): len 必须是 2^k
+/// init(l): l 是参与运算的多项式的长度之和，返回一个2^k的长度
 namespace FFT {
   const int N = (1 << 21) + 5;
   const double PI = acos(-1);
@@ -33,12 +35,3 @@ namespace FFT {
   }
 } // namespace FFT
 typedef FFT::cpx dft[FFT::N];
-/*
- * L5 : ai+b
- * L15: w_(2*j) 的单位根，2*PI/(2*j)=PI/j
- * L22: 实部
- * L28: 蝴蝶变换预处理
- * L32: 定义dft类型，表示一个cpx的数组
- * dft(f,len,typ): len 必须是 2^k
- * init(l): l 是参与运算的多项式的长度之和，返回一个2^k的长度
- */

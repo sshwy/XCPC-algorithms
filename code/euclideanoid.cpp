@@ -1,8 +1,6 @@
 #include "head.h"
-/**
- * 类欧几里德算法
- * 计算 sum (0 <= i <= n) floor((a*i+b)/c)
- */
+/// 类欧几里德算法
+/// 计算 sum (0 <= i <= n) floor((a*i+b)/c)
 int f(int a, int b, int c, int n) {
   if (a == 0) return (b / c) * (n + 1);
   if (a < c && b < c) {

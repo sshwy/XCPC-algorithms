@@ -216,11 +216,9 @@ namespace cg {
     }
     return dist;
   }
-  /**
-   * 判断点p与多边形的包含关系
-   * @param g 多边形顶点集
-   * @return 0 表示在多边形外，1 表示在边上，2表示在多边形内
-   */
+  /// 判断点p与多边形的包含关系
+  /// @param g 多边形顶点集
+  /// @return 0 表示在多边形外，1 表示在边上，2表示在多边形内
   int polygon_pt_containment(vector<Pt> g, Pt p) {
     Ln L(Vec(p.x - 1, p.y), p); // 水平方向的射线
     int cnt = 0;
@@ -249,12 +247,10 @@ namespace cg {
     Cir() { r = 0; }
     Cir(Pt _o, Vt _r) { o = _o, r = _r; }
   };
-  /**
-   * 判断两个圆的位置关系（切线数量）
-   * @param a 第一个圆
-   * @param b 第二个圆
-   * @return 0 表示包含，1 表示内切，2 表示相交，3 表示外切，4 表示相离
-   */
+  /// 判断两个圆的位置关系（切线数量）
+  /// @param a 第一个圆
+  /// @param b 第二个圆
+  /// @return 0 表示包含，1 表示内切，2 表示相交，3 表示外切，4 表示相离
   int check_cir_inter(Cir a, Cir b) {
     Vt d = dst(a.o, b.o);
     if (gt(d, a.r + b.r)) return 4;
@@ -263,10 +259,8 @@ namespace cg {
     if (eq(d, abs(a.r - b.r))) return 1;
     return 0;
   }
-  /**
-   * 判断圆和点的位置关系
-   * @return 0 表示包含，1 表示在圆上，2 表示在圆外
-   */
+  /// 判断圆和点的位置关系
+  /// @return 0 表示包含，1 表示在圆上，2 表示在圆外
   int check_cir_point_containment(Cir c, Pt p) {
     Vt d = dst(c.o, p);
     if (lt(d, c.r)) return 0;
@@ -292,22 +286,16 @@ namespace cg {
   }
   // 圆点到直线的距离
   Vt dst(Ln L, Cir c) { return dst(L, c.o); }
-  /**
-   * 求直线和圆的交点。如果相切那么返回两个相同的点
-   * 不会检查是否有交点。要求你提前判定
-   * @return 一个 pair 表示两个交点
-   */
+  /// 求直线和圆的交点。如果相切那么返回两个相同的点。不会检查是否有交点。要求你提前判定
+  /// @return 一个 pair 表示两个交点
   pair<Pt, Pt> cir_line_inter(Ln L, Cir c) {
     Vt d = dst(L, c);
     Vec shift = L.dir() * Vt(sqrt(max(Vt(0), c.r * c.r - d * d)));
     Pt mid = proj(L, c.o);
     return make_pair(mid - shift, mid + shift);
   }
-  /**
-   * 求两圆的交点。如果相切那么返回两个相同的点
-   * 不会检查是否有交点。要求你提前判定
-   * @return 一个 pair 表示两个交点
-   */
+  /// 求两圆的交点。如果相切那么返回两个相同的点。不会检查是否有交点。要求你提前判定
+  /// @return 一个 pair 表示两个交点
   pair<Pt, Pt> cir_inter(Cir c1, Cir c2) {
     assert(check_cir_inter(c1, c2) > 0);
     assert(check_cir_inter(c1, c2) < 4);
@@ -318,11 +306,8 @@ namespace cg {
     Vec shift = c1.r * sqrt(1 - cosT * cosT) * ooo.dir();
     return make_pair(p + shift, p - shift);
   }
-  /**
-   * 求圆外或圆上一点到圆的切线。
-   * 不会检查是否在圆外。要求你提前判定
-   * @return 一个 pair 表示两个切点，如果是圆上的点那么返回两个相同的点
-   */
+  /// 求圆外或圆上一点到圆的切线。不会检查是否在圆外。要求你提前判定
+  /// @return 一个 pair 表示两个切点，如果是圆上的点那么返回两个相同的点
   pair<Pt, Pt> cir_point_tangent(Cir c, Pt p) {
     assert(check_cir_point_containment(c, p) != 0);
     Vec op = p - c.o, oop = r90_clockwise(op);
@@ -332,29 +317,23 @@ namespace cg {
     Vec shift = oop.dir() * sqrt(c.r * c.r - x * x);
     return make_pair(mid + shift, mid - shift);
   }
-  /**
-   * 两个大小不同的圆的外位似中心
-   * 若这两个圆不是包含关系，那么可以理解为是两条外公切线的交点
-   */
+  // 两个大小不同的圆的外位似中心
+  // 若这两个圆不是包含关系，那么可以理解为是两条外公切线的交点
   Pt cir_outer_homothetic_center(Cir c1, Cir c2) {
     assert(!eq(c1.r, c2.r));
     if (gt(c1.r, c2.r)) swap(c1, c2);
     Pt p = (c1.o - c2.o) * c1.r / (c2.r - c1.r) + c1.o;
     return p;
   }
-  /**
-   * 两个大小不同的圆的内位似中心
-   * 若这两个圆是相离或者外切关系，那么可以理解为是两条内公切线的交点
-   */
+  // 两个大小不同的圆的内位似中心
+  // 若这两个圆是相离或者外切关系，那么可以理解为是两条内公切线的交点
   Pt cir_inner_homothetic_center(Cir c1, Cir c2) {
     Pt p = (c2.o - c1.o) * c1.r / (c2.r + c1.r) + c1.o;
     return p;
   }
-  /**
-   * 求两圆外公切线
-   * 要求两圆不能是包含关系。
-   * 如果是内切的话那么返回两条相同的线（指line的两个点分别相同）
-   */
+  // 求两圆外公切线
+  // 要求两圆不能是包含关系。
+  // 如果是内切的话那么返回两条相同的线（指line的两个点分别相同）
   pair<Ln, Ln> cir_outer_common_tangent(Cir c1, Cir c2) {
     assert(check_cir_inter(c1, c2) != 0);
     if (!eq(c1.r, c2.r)) {
@@ -374,11 +353,9 @@ namespace cg {
       return make_pair(t + shift, t - shift);
     }
   }
-  /**
-   * 求两圆内公切线
-   * 要求两圆要么相离要么外切。
-   * 如果是外切的话那么返回两条相同的线（指line的两个点分别相同）
-   */
+  // 求两圆内公切线
+  // 要求两圆要么相离要么外切。
+  // 如果是外切的话那么返回两条相同的线（指line的两个点分别相同）
   pair<Ln, Ln> cir_inner_common_tangent(Cir c1, Cir c2) {
     assert(check_cir_inter(c1, c2) >= 3);
     Pt p = cir_inner_homothetic_center(c1, c2);

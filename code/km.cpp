@@ -13,8 +13,7 @@ bool push(int v) { // v in L。找到増广路则返回 true
   return true;
 }
 void bfs(int s) { // s in R
-  fill(vl + 1, vl + n + 1, false);
-  fill(vr + 1, vr + n + 1, false);
+  fill(vl + 1, vl + n + 1, false), fill(vr + 1, vr + n + 1, false);
   fill(slack + 1, slack + n + 1, INF);
   ql = qr = 0, q[++qr] = s, vr[s] = true;
   while (1) {

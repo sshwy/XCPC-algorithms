@@ -12,10 +12,10 @@ namespace MCMF {
 
   bool vis[N];
   queue<int> q;
-  int s, t, d[N], pre[N], incf[N], maxflow, maxcost;
+  int s, t, d[N], pre[N], inc[N], maxf, maxc;
   bool spfa() {
     memset(d, -1, sizeof(d));
-    q.push(s), d[s] = 0, incf[s] = INF, incf[t] = 0;
+    q.push(s), d[s] = 0, inc[s] = INF, inc[t] = 0;
     while (!q.empty()) {
       int u = q.front();
       q.pop();
@@ -23,18 +23,16 @@ namespace MCMF {
       for (int i = h[u]; i; i = e[i].nex) {
         const int v = e[i].t, w = e[i].v, c = e[i].c;
         if (!w || d[v] >= d[u] + c) continue;
-        d[v] = d[u] + c, incf[v] = min(incf[u], w), pre[v] = i;
+        d[v] = d[u] + c, inc[v] = min(inc[u], w), pre[v] = i;
         if (!vis[v]) q.push(v), vis[v] = 1;
       }
     }
-    return incf[t];
+    return inc[t];
   }
   void update() {
-    maxflow += incf[t];
-    for (int u = t; u != s; u = e[pre[u] ^ 1].t) {
-      e[pre[u]].v -= incf[t], e[pre[u] ^ 1].v += incf[t];
-      maxcost += incf[t] * e[pre[u]].c;
-    }
+    maxf += inc[t];
+    for (int u = t; u != s; u = e[pre[u] ^ 1].t)
+      e[pre[u]].v -= inc[t], e[pre[u] ^ 1].v += inc[t], maxc += inc[t] * e[pre[u]].c;
   }
   void go() {
     while (spfa()) update();
