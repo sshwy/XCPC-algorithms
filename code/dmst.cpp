@@ -50,7 +50,7 @@ template <const int N, const int M> struct DirectedMST {
     fill(In, In + n + 1, -1), fill(onCir, onCir + n + 1, 0);
     totCir = 0;
 
-    for (unsigned i = 0; i < ve.size(); i++) {
+    for_each(i, ve) {
       int u = getNode(ve[i].u), v = getNode(ve[i].v);
       if (u == v) continue;
       if (In[v] == -1 || ve[In[v]].w > ve[i].w) In[v] = i;
@@ -66,12 +66,10 @@ template <const int N, const int M> struct DirectedMST {
         for (int z = u; z != -1; z = z == v ? -1 : getNode(ve[In[z]].u))
           onCir[z] = totCir, tnd[z] = v, Time[In[z]] = ++totTime; // assert(z);
         flag = true;
-      } else {
-        fa[get(u)] = get(v);
-      }
+      } else fa[get(u)] = get(v);
     }
 
-    for (unsigned i = 0; i < ve.size(); i++) {
+    for_each(i, ve) {
       auto &e = ve[i];
       int u = getNode(e.u), v = getNode(e.v);
       if (u == v) continue;
@@ -93,14 +91,13 @@ template <const int N, const int M> struct DirectedMST {
       Time[In[i]] = ++totTime;
     }
     vector<int> SortByTime(totTime + 1, -1);
-    for (unsigned i = 0; i < ve.size(); i++)
-      if (Time[i]) SortByTime[Time[i]] = i;
+    for_each(i, ve) if (Time[i]) SortByTime[Time[i]] = i;
     ROF(i, totTime, 1) {
       int x = SortByTime[i];
       if (Time[x])
         for (int y : toggle[x]) Time[y] = 0;
     }
-    for (unsigned i = 0; i < ve.size(); i++) {
+    for_each(i, ve) {
       ve[i].reset();
       if (Time[i]) vt.push_back(ve[i]);
     } // assert(vt.size() == n - 1);

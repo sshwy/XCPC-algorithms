@@ -6,3 +6,4 @@ typedef long long LL;
 #define pb push_back
 #define FOR(i, a, b) for (int i = (a); i <= (b); ++i)
 #define ROF(i, a, b) for (int i = (a); i >= (b); --i)
+#define for_each(i, s) for (int i = 0; i < (int)s.size(); i++)

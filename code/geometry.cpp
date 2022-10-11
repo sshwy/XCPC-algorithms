@@ -438,9 +438,9 @@ namespace cg {
   // 若区域封闭，保证求出来的半平面交中直线的两个点是凸多边形上的线段端点
   vector<Ln> half_planar_inter(vector<Ln> lns) {
     vector<pair<Vt, int>> vs(lns.size()); // sort by angle
-    for (unsigned i = 0; i < lns.size(); i++) vs[i] = make_pair(lns[i].vec().ang(), i);
+    for_each(i, lns) vs[i] = make_pair(lns[i].vec().ang(), i);
     sort(vs.begin(), vs.end());
-    for (unsigned i = 1; i < vs.size(); i++) {
+    for_each(i, vs) {
       if (gt(vs[i].fi - vs[i - 1].fi, PI)) {
         FOR(j, 0, i - 1) vs[j].fi += 2 * PI;
         rotate(vs.begin(), vs.begin() + i, vs.end());
@@ -450,7 +450,7 @@ namespace cg {
     vector<Ln> qL(lns.size(), Ln(Pt(), Pt())); // lines
     vector<Pt> qP(lns.size()); // cross points
     int ql = 0, qr = -1;
-    for (unsigned i = 0; i < vs.size(); i++) {
+    for_each(i, vs) {
       Vt ang = vs[i].fi;
       const Ln ln = lns[vs[i].se];
       assert(ln.vec());
@@ -474,9 +474,8 @@ namespace cg {
     vector<Ln> res(qL.begin() + ql, qL.begin() + qr + 1);
     // 开放空间
     if (!lt(qA[ql] + PI, qA[qr])) return res;
-    for (unsigned i = 0; i < res.size(); i++)
-      res[i].ed = res[(i + 1) % res.size()].st = qP[ql + i];
-    // for (unsigned i = 0; i < res.size(); i++) assert(res[i].vec());
+    for_each(i, res) res[i].ed = res[(i + 1) % res.size()].st = qP[ql + i];
+    // for_each(i, res) assert(res[i].vec());
     return res;
   }
 } // namespace cg

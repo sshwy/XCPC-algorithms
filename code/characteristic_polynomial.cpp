@@ -9,21 +9,19 @@ int pw(int a, int m) {
 Poly operator-(const Poly &p, const Poly &q) {
   Poly res = p;
   res.resize(max(p.size(), q.size()), 0);
-  for (long unsigned i = 0; i < q.size(); ++i) res[i] = (res[i] - q[i] + P) % P;
+  for_each(i, q) res[i] = (res[i] - q[i] + P) % P;
   return res;
 }
 Poly operator+(const Poly &p, const Poly &q) {
   Poly res = p;
   res.resize(max(p.size(), q.size()), 0);
-  for (long unsigned i = 0; i < q.size(); ++i) res[i] = (res[i] + q[i]) % P;
+  for_each(i, q) res[i] = (res[i] + q[i]) % P;
   return res;
 }
 Poly operator*(const Poly &p, const Poly &q) {
   if (!p.size() || !q.size()) return Poly();
   Poly res(p.size() + q.size() - 1, 0);
-  for (long unsigned i = 0; i < p.size(); i++)
-    for (long unsigned j = 0; j < q.size(); j++)
-      res[i + j] = (res[i + j] + p[i] * 1ll * q[j] % P) % P;
+  for_each(i, p) for_each(j, q) res[i + j] = (res[i + j] + p[i] * 1ll * q[j] % P) % P;
   return res;
 }
 Poly operator%(const Poly &p, const Poly &q) { // mod
@@ -31,8 +29,7 @@ Poly operator%(const Poly &p, const Poly &q) { // mod
   while (res.size() >= q.size()) {
     int d = res.size() - q.size();
     int rate = res.back() * 1ll * pw(q.back(), P - 2) % P;
-    for (long unsigned i = 0; i < q.size(); i++)
-      res[i + d] = (res[i + d] - q[i] * 1ll * rate % P + P) % P;
+    for_each(i, q) res[i + d] = (res[i + d] - q[i] * 1ll * rate % P + P) % P;
     assert(res.back() == 0);
     res.pop_back();
   }
