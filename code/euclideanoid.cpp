@@ -1,3 +1,4 @@
+#include "head.h"
 /**
  * 类欧几里德算法
  * 计算 sum (0 <= i <= n) floor((a*i+b)/c)

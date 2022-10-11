@@ -1,3 +1,4 @@
+#include "head.h"
 namespace EXBSGS {
   const LL SZ = 433337;
   struct hash_map {

@@ -1,8 +1,10 @@
+#include "head.h"
 const int SZ = 5e5 + 500, ALP = 26;
+// 0 号结点表示 0 结点，1 号结点表示 -1 结点，长度为 -1
+// last 记录上一次插入的字符所在结点的编号
 struct PAM {
-  int tot, last;
+  int tot, last, s[SZ], ls; // 字符串的内容 -'0'
   int len[SZ], tr[SZ][ALP], fail[SZ];
-  int s[SZ], ls; // 字符串的内容 -'0'
   int cnt[SZ], num[SZ]; //状态出现次数、fail树上的深度（有多少回文后缀）
   int newnode(int l) {
     ++tot, len[tot] = l, fail[tot] = 0, cnt[tot] = 0;
@@ -26,19 +28,12 @@ struct PAM {
       int u = newnode(len[cur] + 2);
       fail[u] = tr[getfail(fail[cur])][c];
       tr[cur][c] = u;
-      // 在此处更新 tot 的卫星信息
-      num[tot] = num[fail[tot]] + 1;
+      num[tot] = num[fail[tot]] + 1; // 在此处更新 tot 的卫星信息
     }
     last = tr[cur][c];
-    // 在此处更新 last 的卫星信息
-    cnt[last]++;
+    cnt[last]++; // 在此处更新 last 的卫星信息
   }
   void count() { //最后用来计算每个状态的出现次数
     ROF(i, tot, 0) cnt[fail[i]] += cnt[i];
   }
 };
-/*
- * 0 号结点表示 0 结点
- * 1 号结点表示 -1 结点，长度为 -1
- * last 记录上一次插入的字符所在结点的编号
- */

@@ -1,3 +1,4 @@
+#include "head.h"
 const int N = 300010, mod = 998244353;
 typedef long long LL;
 int Pow(int x, int y) {
@@ -49,7 +50,7 @@ vector<int> mul(vector<int> a, vector<int> b) {
   GetR(len, l), a.resize(len + 1), b.resize(len + 1);
   NTT(a, len, 1), NTT(b, len, 1);
   for (int i = 0; i < len; i++) a[i] = (LL)a[i] * b[i] % mod;
-  NTT(a, len, 0), a.resize(min(n + 1, t + 1));
+  NTT(a, len, 0); // a.resize(min(n + 1, t + 1));
   return a;
 }
 

@@ -1,10 +1,8 @@
+#include "head.h"
 const int SZ = 2e6 + 500, ALP = 26;
-
 struct SAM {
-  int tot, last;
-  int tr[SZ][ALP], fail[SZ];
-  int len[SZ], cnt[SZ], end[SZ];
-  int s[SZ], ls;
+  int tot, last, s[SZ], ls;
+  int tr[SZ][ALP], fail[SZ], len[SZ], cnt[SZ], end[SZ];
   SAM() { tot = last = 1, len[1] = 0, fail[1] = 0; }
   void insert(char x) {
     s[++ls] = x;

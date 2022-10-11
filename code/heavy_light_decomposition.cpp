@@ -1,3 +1,5 @@
+#include "head.h"
+const int N = 1e5 + 5;
 vector<int> g[N];
 int sz[N], dep[N], big[N], top[N], fa[N], totdfn;
 int b[N], id[N];

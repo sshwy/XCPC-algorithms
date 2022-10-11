@@ -1,12 +1,13 @@
+#include "head.h"
 const int N = 1e5 + 5;
 struct qxx {
   int nex, t, v;
 } e[N * 2];
 int h[N], le = 1;
-void add_path(int f, int t, int v) { e[++le] = {h[f], t, v}, h[f] = le; }
-int n;
+void ae(int f, int t, int v) { e[++le] = {h[f], t, v}, h[f] = le; }
+
+int n, sz[N], sm[N];
 bool Cut[N];
-int sz[N], sm[N];
 void Size(int u, int p) {
   sz[u] = 1, sm[u] = 0;
   for (int i = h[u]; i; i = e[i].nex) {

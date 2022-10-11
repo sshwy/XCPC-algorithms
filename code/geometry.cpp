@@ -1,16 +1,10 @@
+#include "head.h"
 /**
  * Computing Geometry Library
  * ref1: https://onlinejudge.u-aizu.ac.jp/courses/library/4/CGL/all
  * ref2: https://darkbzoj.tk/problem/2178
  * @author Sshwy
  */
-#include <bits/stdc++.h>
-using namespace std;
-#define pb push_back
-#define fi first
-#define se second
-#define FOR(i, a, b) for (int i = (int)(a); i <= (int)(b); ++i)
-
 namespace cg {
   typedef long double Vt;
   const Vt eps = 1e-9;

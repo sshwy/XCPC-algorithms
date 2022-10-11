@@ -1,4 +1,5 @@
-const int N = 1000;
+#include "head.h"
+const int N = 1e6 + 5;
 int n, nex[N];
 void getNext(char *s, int l) {
   nex[0] = -1;

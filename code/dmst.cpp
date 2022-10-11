@@ -1,3 +1,4 @@
+#include "head.h"
 /**
  * Chu-Liu/Edmonds' algorithm
  * 计算有向图（允许重边、不允许自环）给定根的最小权外向生成树（最小树形图）
@@ -8,13 +9,9 @@
  * Usage:
  */
 const int N = 115, M = 10004;
-
 DirectedMST<N, M> DMST;
-
 int n, m, r;
-
 vector<Edge> E;
-
 int main() {
   scanf("%d%d%d", &n, &m, &r);
   FOR(i, 1, m) {
@@ -58,9 +55,7 @@ template <const int N, const int M> struct DirectedMST {
       if (u == v) continue;
       if (In[v] == -1 || ve[In[v]].w > ve[i].w) In[v] = i;
     }
-
     FOR(i, 1, n) fa[i] = i;
-
     FOR(i, 1, n) if (i != root && getNode(i) == i) {
       if (In[i] == -1) return false;
       Edge e = ve[In[i]];
@@ -85,19 +80,14 @@ template <const int N, const int M> struct DirectedMST {
     }
 
     FOR(i, 1, n) if (onCir[i]) nd[i] = tnd[i]; // assert(getNode(i) == i);
-
     return flag;
   }
   vector<Edge> buildFrom(int n, int root, vector<Edge> ve) {
     assert(!ve.empty());
     vector<Edge> vt;
     FOR(i, 1, n) nd[i] = i;
-    fill(Time, Time + ve.size() + 1, 0);
-    totTime = 0;
-
-    while (work(n, root, ve))
-      ;
-
+    fill(Time, Time + ve.size() + 1, 0), totTime = 0;
+    while (work(n, root, ve)) {}
     FOR(i, 1, n) if (getNode(i) == i && i != root) {
       if (In[i] == -1) return vt; // empty
       Time[In[i]] = ++totTime;
@@ -105,13 +95,11 @@ template <const int N, const int M> struct DirectedMST {
     vector<int> SortByTime(totTime + 1, -1);
     for (unsigned i = 0; i < ve.size(); i++)
       if (Time[i]) SortByTime[Time[i]] = i;
-
     ROF(i, totTime, 1) {
       int x = SortByTime[i];
       if (Time[x])
         for (int y : toggle[x]) Time[y] = 0;
     }
-
     for (unsigned i = 0; i < ve.size(); i++) {
       ve[i].reset();
       if (Time[i]) vt.push_back(ve[i]);

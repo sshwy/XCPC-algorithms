@@ -1,3 +1,4 @@
+#include "head.h"
 int pw(int a, int m, int p) {
   int res = 1;
   while (m) m & 1 ? res = 1ll * res * a % p : 0, a = 1ll * a * a % p, m >>= 1;

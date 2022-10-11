@@ -1,9 +1,10 @@
+#include "head.h"
 namespace IO {
   char nc() {
-    static char bf[100000], *p1 = bf, *p2 = bf;
-    return p1 == p2 && (p2 = (p1 = bf) + fread(bf, 1, 100000, stdin), p1 == p2)
+    static char bf[100000], *st = bf, *ed = bf;
+    return st == ed && (ed = (st = bf) + fread(bf, 1, 100000, stdin), st == ed)
              ? EOF
-             : *p1++;
+             : *st++;
   }
   int rd() {
     int res = 0;

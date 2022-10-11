@@ -1,3 +1,5 @@
+#include "head.h"
+const int N = 1e6 + 5;
 vector<int> g[N];
 int dep[N], lon[N], hei[N], fa[N][20], f0[N], htop[N];
 vector<int> up[N], dn[N];
@@ -18,7 +20,7 @@ void dfs3(int u, int p, int htp) {
   for (int v : g[u])
     if (v != p && v != lon[u]) dfs3(v, u, v);
 }
-int highbit[N];
+int highbit[N]; // FOR(i, 1, n) highbit[i] = i == 1 ? 0 : highbit[i >> 1] + 1;
 int kthanc(int u, int k) {
   if (dep[u] <= k) return 0;
   if (k == 0) return u;
@@ -27,4 +29,3 @@ int kthanc(int u, int k) {
   if (d >= 0) return dn[htop[u]][d];
   else return up[htop[u]][-d];
 }
-// FOR(i,1,n)highbit[i]=i==1?0:highbit[i>>1]+1;

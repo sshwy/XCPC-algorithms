@@ -1,3 +1,4 @@
+#include "head.h"
 const int P = 1e9 + 7, K = 1005;
 int pw(int a, int m) {
   int res = 1;

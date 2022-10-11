@@ -1,3 +1,5 @@
+#include "head.h"
+const int N = 210, P = 998244353;
 typedef vector<int> Poly;
 int pw(int a, int m) {
   int res = 1;

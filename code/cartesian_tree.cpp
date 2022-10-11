@@ -1,5 +1,6 @@
-int n, a[N], root;
-int s[N], tp, lc[N], rc[N];
+#include "head.h"
+const int N = 1e5 + 5;
+int n, a[N], root, s[N], tp, lc[N], rc[N];
 void al(int u, int v) { lc[u] = v; }
 void ar(int u, int v) { rc[u] = v; }
 void build() {

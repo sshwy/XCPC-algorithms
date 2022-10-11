@@ -1,5 +1,6 @@
+#include "head.h"
 typedef long long LL;
-
+const int N = 1e5 + 5, mod = 998244353;
 LL a[N], T, n;
 int pr[N], id1[N], id2[N], flag[N], g[N], sum[N], ncnt, m;
 
@@ -30,10 +31,11 @@ void init() {
       g[j] =
         (g[j] - (LL)f1(pr[i]) * (g[ID(a[j] / pr[i])] - sum[i - 1]) % mod + mod) % mod;
 }
-
+void Inc(int &x, int y) { x += y, x -= x >= mod ? mod : 0; }
 int solve(LL n, int m) {
   if (n < pr[m]) return 0;
-  int res = (g[ID(n)] * (LL)2 * t - (LL)sum[m - 1] * 2 * t) % mod;
+  // int res = (g[ID(n)] * (LL)2 * t - (LL)sum[m - 1] * 2 * t) % mod;
+  int res = (g[ID(n)] - (LL)sum[m - 1]) % mod;
   res = (res + mod) % mod;
   for (int i = m; i <= ncnt && (LL)pr[i] * pr[i] <= n; i++)
     for (LL j = pr[i], c = 1; j * pr[i] <= n; j *= pr[i], c++)

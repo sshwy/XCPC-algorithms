@@ -1,6 +1,6 @@
-int n;
-long long b[70], lb;
-bool insert(long long x) { //消成对角矩阵
+#include "head.h"
+LL b[70], lb;
+bool insert(LL x) { //消成对角矩阵
   ROF(i, 63, 0) {
     if (!(x >> i & 1)) continue;
     if (!b[i]) {
@@ -12,12 +12,4 @@ bool insert(long long x) { //消成对角矩阵
     x ^= b[i];
   }
   return 0;
-}
-void print() {
-  int len = 0;
-  FOR(i, 0, 63) if (b[i]) len = i;
-  FOR(i, 0, len) {
-    ROF(j, len, 0) { printf("%lld", b[i] >> j & 1); }
-    puts("");
-  }
 }

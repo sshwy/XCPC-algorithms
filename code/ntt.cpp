@@ -1,3 +1,5 @@
+#include "head.h"
+// 必须保证初始时f里的值非负！
 namespace NTT {
   const int N = (1 << 21) + 5, P = 998244353;
   int pw(int a, int m) {
@@ -19,10 +21,8 @@ namespace NTT {
         }
       }
     }
-    if (typ == -1) {
-      int x = pw(len, P - 2);
-      for (int i = 0; i < len; i++) f[i] = 1ll * f[i] * x % P;
-    }
+    if (typ == -1)
+      for (int i = 0, x = pw(len, P - 2); i < len; i++) f[i] = 1ll * f[i] * x % P;
   }
   int init(int l) {
     d = 0;
@@ -33,6 +33,3 @@ namespace NTT {
   }
 } // namespace NTT
 typedef int dft[NTT::N];
-/*
- * 必须保证初始时f里的值非负！
- */

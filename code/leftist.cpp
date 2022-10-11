@@ -1,3 +1,5 @@
+#include "head.h"
+const int SZ = 2e5 + 5;
 int lc[SZ], rc[SZ], val[SZ], dep[SZ], tot;
 int new_node(int v) {
   ++tot, val[tot] = v, lc[tot] = rc[tot] = 0, dep[tot] = 0;

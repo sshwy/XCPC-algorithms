@@ -1,15 +1,8 @@
-// by Yao
-#include <bits/stdc++.h>
-using namespace std;
-#define pb push_back
-#define FOR(i, a, b) for (int i = (a); i <= (b); ++i)
-#define ROF(i, a, b) for (int i = (a); i >= (b); --i)
-
+#include "head.h"
 const int N = 404;
-const long long INF = 1e18;
 
 int n, nl, nr, m;
-long long w[N][N], hl[N], hr[N], slack[N];
+LL w[N][N], hl[N], hr[N], slack[N], INF = 1e18;
 int pre[N], toR[N], toL[N], q[N], ql, qr;
 bool vl[N], vr[N];
 
@@ -28,7 +21,7 @@ void bfs(int s) { // s in R
     while (ql < qr) {
       int u = q[++ql]; // u in R
       FOR(v, 1, n) if (!vl[v]) {
-        long long d = hl[v] + hr[u] - w[v][u];
+        LL d = hl[v] + hr[u] - w[v][u];
         if (d == 0) { // 是相等子图里的点
           pre[v] = u;
           if (push(v)) return;
@@ -37,7 +30,7 @@ void bfs(int s) { // s in R
         }
       }
     }
-    long long d = INF;
+    LL d = INF;
     FOR(i, 1, n) if (!vl[i] && d > slack[i]) d = slack[i];
     FOR(i, 1, n) {
       if (vl[i]) hl[i] += d;
@@ -48,12 +41,9 @@ void bfs(int s) { // s in R
   }
 }
 void KM() {
-  FOR(i, 1, n) {
-    hl[i] = *max_element(w[i] + 1, w[i] + n + 1);
-    hr[i] = 0;
-  }
+  FOR(i, 1, n) hl[i] = *max_element(w[i] + 1, w[i] + n + 1), hr[i] = 0;
   fill(slack + 1, slack + n + 1, INF);
-  FOR(i, 1, n) { bfs(i); }
+  FOR(i, 1, n) bfs(i);
 }
 int main() {
   scanf("%d%d%d", &nl, &nr, &m);
@@ -64,7 +54,7 @@ int main() {
   }
   n = max(nl, nr);
   KM();
-  long long ans = 0;
+  LL ans = 0;
   FOR(i, 1, n) ans += hl[i] + hr[i];
   printf("%lld\n", ans);
   // 不能用 toR[i] > nr 来判断是否有匹配，因为 0 权边是不存在的

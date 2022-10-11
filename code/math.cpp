@@ -1,3 +1,4 @@
+#include "head.h"
 namespace math {
   int powmod(int a, int b, int mod) {
     int res = 1;

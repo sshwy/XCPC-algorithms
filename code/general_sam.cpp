@@ -1,4 +1,4 @@
-/******************heading******************/
+#include "head.h"
 const int N = 2e6 + 50, C = 12;
 
 struct qxx {
@@ -58,7 +58,7 @@ struct SAM {
     printf("u=%2d,len=%2d,fail=%2d,tnode=%2d\n", u, len[u], fail[u], tnode[u]);
   }
   void count() {
-    lld ans = 0;
+    LL ans = 0;
     FOR(i, 1, tot) ans += len[i] - len[fail[i]];
     printf("%lld", ans);
   }

@@ -1,11 +1,5 @@
-// by Yao
-#include <bits/stdc++.h>
-using namespace std;
-#define FOR(i, a, b) for (int i = (a); i <= (b); ++i)
-#define ROF(i, a, b) for (int i = (a); i >= (b); --i)
-
+#include "head.h"
 typedef long long LL;
-
 /**
  * Min_25 筛
  *

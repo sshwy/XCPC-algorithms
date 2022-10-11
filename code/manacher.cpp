@@ -1,3 +1,4 @@
+#include "head.h"
 const int N = 11000100;
 char s[N];
 int ls, L, R, d[N], ans;

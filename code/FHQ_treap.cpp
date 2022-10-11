@@ -1,8 +1,6 @@
-#include <cstdio>
+#include "head.h"
 using namespace std;
 const int N = 1e5 + 5, SZ = N;
-int n;
-
 struct Treap {
   int seed = 1, root, tot;
   int ch[SZ][2];

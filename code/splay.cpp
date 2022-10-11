@@ -1,5 +1,5 @@
-const int SZ = 1e5 + 5;
-
+#include "head.h"
+const int SZ = 1e5 + 5, INF = 1e9;
 struct Splay {
   int tot, ch[SZ][2], key[SZ], sz[SZ], pa[SZ], root;
   int rv[SZ];

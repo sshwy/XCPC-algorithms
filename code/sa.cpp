@@ -1,3 +1,5 @@
+#include "head.h"
+const int N = 5e5 + 5;
 struct SA {
   char s[N];
   int l, sz, sa[N], rk[N];

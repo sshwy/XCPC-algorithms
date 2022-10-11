@@ -1,3 +1,4 @@
+#include "head.h"
 // z[i] (i > 0) = LCP(s[i..n], s[1..n]); z[0] = 0
 vector<int> z_function(string s) {
   int n = (int)s.length();

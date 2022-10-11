@@ -1,3 +1,4 @@
+#include "head.h"
 namespace FFT {
   const int N = (1 << 21) + 5;
   const double PI = acos(-1);

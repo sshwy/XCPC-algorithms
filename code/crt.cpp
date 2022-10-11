@@ -1,3 +1,4 @@
+#include "head.h"
 LL mul(LL a, LL b, LL p) { // 这个函数貌似目前只支持非负整数
   if (a <= 1000000000 && b <= 1000000000) return a * b % p;
   LL res = 0;
