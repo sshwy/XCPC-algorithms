@@ -13,8 +13,7 @@ namespace math {
     if (p <= 1000000000ll) return 1ll * a * b % p;
     if (p <= 1000000000000ll)
       return (((a * (b >> 20) % p) << 20) % p + a * (b & ((1 << 20) - 1))) % p;
-    LL d = floor(a * (long double)b / p);
-    LL res = (a * b - d * p) % p;
+    LL d = floor(a * (long double)b / p), res = (a * b - d * p) % p;
     if (res < 0) res += p;
     return res;
   }
@@ -47,8 +46,7 @@ namespace math {
   }
 #define mytz __builtin_ctzll
   LL gcd(LL a, LL b) {
-    if (!a) return b;
-    if (!b) return a;
+    if (!a || !b) return a + b;
     register int t = mytz(a | b);
     a >>= mytz(a);
     do {
