@@ -18,18 +18,14 @@ namespace exbsgs {
     void clear() { memset(h, 0, sizeof(h)), le = 0; }
   } h;
   LL gcd(LL a, LL b) { return b ? gcd(b, a % b) : a; }
-  LL mul(LL a, LL b, LL p) {
-    if (p <= 1000000000ll) return 1ll * a * b % p;
-    if (p <= 1000000000000ll)
-      return (((a * (b >> 20) % p) << 20) % p + a * (b & ((1 << 20) - 1))) % p;
-    LL d = floor(a * (long double)b / p);
-    LL res = (a * b - d * p) % p;
+  LL mull(LL a, LL b, LL p) { // assert(a < p && b < p);
+    LL d = a * (long double)b / p + 0.5, res = (a * b - d * p) % p;
     if (res < 0) res += p;
     return res;
   }
   LL pw(LL a, LL m, LL p) {
     LL res = 1;
-    while (m) m & 1 ? res = mul(res, a, p) : 0, a = mul(a, a, p), m >>= 1;
+    while (m) m & 1 ? res = mull(res, a, p) : 0, a = mull(a, a, p), m >>= 1;
     return res;
   }
   LL exgcd(LL a, LL b, LL &x, LL &y) {
@@ -48,11 +44,11 @@ namespace exbsgs {
     if (!a && !b) return 1;
     if (!a) return -1;
     LL t = sqrt(p) + 0.5, cur = b, q = 1;
-    FOR(i, 0, t) h[cur] = i, cur = mul(cur, a, p);
+    FOR(i, 0, t) h[cur] = i, cur = mull(cur, a, p);
     cur = pw(a, t, p);
     FOR(i, 0, t) {
       if (h[q] != -1 && i * t - h[q] >= 0) return i * t - h[q];
-      q = mul(q, cur, p);
+      q = mull(q, cur, p);
     }
     return -1;
   }
@@ -60,11 +56,11 @@ namespace exbsgs {
     LL d = 0, f = 1, g;
     while ((g = gcd(a, p)) > 1) {
       if (b % g) return -1;
-      ++d, f = mul(f, g, p), b /= g, p /= g;
+      ++d, f = mull(f, g, p), b /= g, p /= g;
     }
     LL ia = inv(a, p);
-    f = mul(f, pw(ia, d, p), p);
-    b = mul(b, f, p);
+    f = mull(f, pw(ia, d, p), p);
+    b = mull(b, f, p);
     LL res = bsgs(a, b, p);
     return ~res ? res + d : -1;
   }

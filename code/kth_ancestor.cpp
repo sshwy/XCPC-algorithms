@@ -19,11 +19,11 @@ void dfs3(int u, int p, int htp) {
   for (int v : g[u])
     if (v != p && v != son[u]) dfs3(v, u, v);
 }
-int highbit[N]; // FOR(i, 1, n) highbit[i] = i == 1 ? 0 : highbit[i >> 1] + 1;
+int hbit[N]; // FOR(i, 1, n) hbit[i] = i == 1 ? 0 : hbit[i >> 1] + 1;
 int kthanc(int u, int k) {
   if (dep[u] <= k) return 0;
   if (k == 0) return u;
-  u = fa[u][highbit[k]], k -= 1 << highbit[k];
+  u = fa[u][hbit[k]], k -= 1 << hbit[k];
   int d = dep[u] - k - dep[top[u]];
   if (d >= 0) return dn[top[u]][d];
   else return up[top[u]][-d];
