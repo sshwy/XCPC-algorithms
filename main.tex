@@ -63,12 +63,21 @@
 \newpage
 \pagenumbering{arabic}
 
+\section{提醒事项}
+
+\begin{itemize}
+    \item 位运算会保留符号位，所以最好使用 unsigned
+    \item 左移右移如果超过（含） 64 位会 UB
+\end{itemize}
+
 \section{代码头}
 
 \lstinputlisting[language=c++, firstline=2]{code/head.h}
 
 \section{字符串}
 
+\subsection{哈希}
+\lstinputlisting[language=c++, firstline=2]{code/str_hash.cpp}
 \subsection{KMP 算法}
 \lstinputlisting[language=c++, firstline=2]{code/kmp.cpp}
 \subsection{Manacher 算法}
@@ -139,6 +148,10 @@
 \lstinputlisting[language=c++, firstline=2]{code/tarjan_scc.cpp}
 \subsection{圆方树}
 \lstinputlisting[language=c++, firstline=2]{code/circle_block_tree.cpp}
+\subsection{三元环、四元环计数}
+\lstinputlisting[language=c++, firstline=2]{code/tri_cycle.cpp}
+\subsection{欧拉回路}
+\lstinputlisting[language=c++, firstline=2]{code/eular_tour.cpp}
 
 \section{数据结构}
 
@@ -174,7 +187,8 @@
 \lstinputlisting[language=c++, firstline=2]{code/isot_reg.cpp}
 \subsection{IO优化}
 \lstinputlisting[language=c++, firstline=2]{code/io.cpp}
-
+\subsection{Set 维护连续段}
+\lstinputlisting[language=c++, firstline=2]{code/set_seg.cpp}
 
 \label{LastPage}
 \end{document}
