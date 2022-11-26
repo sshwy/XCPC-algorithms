@@ -68,6 +68,7 @@
 \begin{itemize}
     \item 位运算会保留符号位，所以最好使用 unsigned
     \item 左移右移如果超过（含） 64 位会 UB
+    \item 注意题目中对误差的描述，如果是相对误差那么输出的精度会影响正确性
 \end{itemize}
 
 \section{代码头}
@@ -104,6 +105,8 @@
 \subsection{线性基}
 \lstinputlisting[language=c++, firstline=2]{code/linear_basis2.cpp}
 \lstinputlisting[language=c++, firstline=2]{code/linear_basis3.cpp}
+\subsection{杜教筛}
+\lstinputlisting[language=c++, firstline=2]{code/du_sieve.cpp}
 \subsection{Min 25}
 \lstinputlisting[language=c++, firstline=2]{code/min_25.cpp}
 \subsection{Min 25 杰哥}
