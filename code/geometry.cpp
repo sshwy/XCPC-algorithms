@@ -10,8 +10,8 @@ namespace cg {
   const Vt eps = 1e-9;
   const Vt PI = 3.1415926535897932626;
 
-  bool isZero(Vt x) { return -eps < x && x < eps; }
-  bool eq(Vt x, Vt y) { return isZero(x - y); }
+  bool is_zero(Vt x) { return -eps < x && x < eps; }
+  bool eq(Vt x, Vt y) { return is_zero(x - y); }
   bool lt(Vt x, Vt y) { return !eq(x, y) && x < y; }
   bool gt(Vt x, Vt y) { return !eq(x, y) && x > y; }
 
@@ -20,29 +20,28 @@ namespace cg {
     Vec() { x = y = 0; }
     Vec(Vt _x, Vt _y) { x = _x, y = _y; }
 
+    Vt length() const { return sqrt(x * x + y * y); }
+    // 方向角，单位 rad, [-pi, pi]
+    Vt ang() const { return atan2(y, x); }
+    // 方向不变，调整长度为 len （可以是负数）
+    Vec resize(Vt len) const {
+      if (*this) {
+        Vt rate = len / length();
+        return Vec(x * rate, y * rate);
+      } else return Vec(0, 0);
+    }
+
     Vec operator+(const Vec V) const { return Vec(x + V.x, y + V.y); }
     Vec operator-() const { return Vec(-x, -y); }
     Vec operator-(const Vec V) const { return *this + (-V); }
     Vec operator*(const Vt a) const { return Vec(x * a, y * a); }
     friend Vec operator*(const Vt a, const Vec v) { return v * a; }
     Vec operator/(const Vt a) const { return Vec(x / a, y / a); }
-    operator bool() const { return !(isZero(x) && isZero(y)); }
+    operator bool() const { return !(is_zero(x) && is_zero(y)); }
     bool operator==(const Vec V) const { return bool(*this - V) == 0; }
     bool operator!=(const Vec V) const { return bool(*this - V) != 0; }
     bool operator<(const Vec V) const { return eq(x, V.x) ? lt(y, V.y) : lt(x, V.x); }
     bool operator>(const Vec V) const { return eq(x, V.x) ? gt(y, V.y) : gt(x, V.x); }
-
-    Vt length() const { return sqrt(x * x + y * y); }
-    // 方向角，单位 rad
-    Vt ang() const { return atan2(y, x); }
-    // 方向向量 @return 0向量或者一个单位向量
-    Vec dir() const {
-      if (*this) {
-        Vt len = length();
-        // Vt ang = atan2(y,x); return Vec(cos(ang), sin(ang));
-        return Vec(x / len, y / len);
-      } else return Vec(0, 0);
-    }
   };
   typedef Vec Pt;
 
@@ -55,7 +54,7 @@ namespace cg {
     Ln operator+(Pt p) { return Ln(st + p, ed + p); } // shift
     Ln operator-(Pt p) { return Ln(st - p, ed - p); }
     Vec vec() const { return ed - st; }
-    Vec dir() const { return vec().dir(); }
+    Vec dir() const { return vec().resize(1); }
   };
   typedef Ln Seg;
 
@@ -74,16 +73,16 @@ namespace cg {
   // 投影 @param L 直线  @param p 要求投影的点 @return p 在 L 上的投影坐标（即垂足）
   Pt proj(Ln L, Pt p) {
     Vec d = L.ed - L.st;
-    return L.st + (dot(d, p - L.st) / d.length()) * d.dir();
+    return L.st + d.resize(dot(d, p - L.st) / d.length());
   }
   // 对称点 @param L 直线 @param p 点 @return p 关于直线 L 的对称点
   Pt refl(Ln L, Pt p) { return Vt(2) * (proj(L, p) - p) + p; }
   // 判断向量是否平行
-  bool parallel(Vec a, Vec b) { return isZero(det(a, b)); }
+  bool parallel(Vec a, Vec b) { return is_zero(det(a, b)); }
   // 判断直线是否平行
   bool parallel(Ln a, Ln b) { return parallel(a.ed - a.st, b.ed - b.st); }
   // 判断向量是否垂直
-  bool orthogonal(Vec a, Vec b) { return isZero(dot(a, b)); }
+  bool orthogonal(Vec a, Vec b) { return is_zero(dot(a, b)); }
   // 判断直线是否垂直
   bool orthogonal(Ln a, Ln b) { return orthogonal(a.ed - a.st, b.ed - b.st); }
   // 判断点 p 是否在直线L上
@@ -271,8 +270,8 @@ namespace cg {
   Cir incircle(Pt a, Pt b, Pt c) {
     Vt r = abs(det(a - b, a - c)) / (dst(a, b) + dst(a, c) + dst(b, c));
     Ln C(a, b), B(a, c);
-    Vec shiftC = (c - proj(C, c)).dir() * r;
-    Vec shiftB = (b - proj(B, b)).dir() * r;
+    Vec shiftC = (c - proj(C, c)).resize(r);
+    Vec shiftB = (b - proj(B, b)).resize(r);
     Pt o = inter(C + shiftC, B + shiftB);
     return Cir(o, r);
   }
@@ -302,8 +301,8 @@ namespace cg {
     Vec oo = c2.o - c1.o, ooo = r90_clockwise(oo);
     Vt d = oo.length();
     Vt cosT = (c1.r * c1.r + d * d - c2.r * c2.r) / (2 * c1.r * d);
-    Pt p = c1.r * cosT * oo.dir() + c1.o;
-    Vec shift = c1.r * sqrt(1 - cosT * cosT) * ooo.dir();
+    Pt p = oo.resize(c1.r * cosT) + c1.o;
+    Vec shift = ooo.resize(c1.r * sqrt(1 - cosT * cosT));
     return make_pair(p + shift, p - shift);
   }
   /// 求圆外或圆上一点到圆的切线。不会检查是否在圆外。要求你提前判定
@@ -313,76 +312,35 @@ namespace cg {
     Vec op = p - c.o, oop = r90_clockwise(op);
     Vt d = op.length();
     Vt x = c.r * c.r / d;
-    Pt mid = c.o + op.dir() * x;
-    Vec shift = oop.dir() * sqrt(c.r * c.r - x * x);
+    Pt mid = c.o + op.resize(x);
+    Vec shift = oop.resize(sqrt(c.r * c.r - x * x));
     return make_pair(mid + shift, mid - shift);
   }
-  // 两个大小不同的圆的外位似中心
-  // 若这两个圆不是包含关系，那么可以理解为是两条外公切线的交点
-  Pt cir_outer_homothetic_center(Cir c1, Cir c2) {
-    assert(!eq(c1.r, c2.r));
-    if (gt(c1.r, c2.r)) swap(c1, c2);
-    Pt p = (c1.o - c2.o) * c1.r / (c2.r - c1.r) + c1.o;
-    return p;
+  /// 将向量 v 旋转 a 角度
+  Vec rot(Vec v, Vt cos_a, Vt sin_a) {
+    return Vec(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a);
   }
-  // 两个大小不同的圆的内位似中心
-  // 若这两个圆是相离或者外切关系，那么可以理解为是两条内公切线的交点
-  Pt cir_inner_homothetic_center(Cir c1, Cir c2) {
-    Pt p = (c2.o - c1.o) * c1.r / (c2.r + c1.r) + c1.o;
-    return p;
+  /// @brief 求 c1, c2 的 c1 上切点位于 (c1.o -> c2.o) 向量 c1_side 
+  /// 侧的外公切线，保证 Ln::st 是 c1 上的切点，且直线方向指向另一个切点
+  /// @param c1_side false 表示左侧，true 表示右侧
+  Ln cir_common_tangent_outer(Cir c1, Cir c2, bool c1_side) {
+    Vt l = dst(c1.o, c2.o), d = c2.r - c1.r;
+    assert(l >= d); // 否则没有公切线
+    Vt sin_a = d / l, cos_a = sqrt(l * l - d * d) / l;
+    Vec v = rot(c2.o - c1.o, cos_a, sin_a * (c1_side ? 1 : -1));
+    Vec p = rot(v, 0, c1_side ? 1 : -1).resize(c1.r) + c1.o;
+    return Ln(p, p + v);
   }
-  // 求两圆外公切线
-  // 要求两圆不能是包含关系。
-  // 如果是内切的话那么返回两条相同的线（指line的两个点分别相同）
-  pair<Ln, Ln> cir_outer_common_tangent(Cir c1, Cir c2) {
-    assert(check_cir_inter(c1, c2) != 0);
-    if (!eq(c1.r, c2.r)) {
-      Pt p = cir_outer_homothetic_center(c1, c2);
-      auto pt = cir_point_tangent(c1, p);
-      if (pt.fi == pt.se) {
-        Vec oo = r90_clockwise(c1.o - c2.o);
-        Ln t(p + oo, p);
-        return make_pair(t, t);
-      } else {
-        return make_pair(Ln(p, pt.fi), Ln(p, pt.se));
-      }
-    } else {
-      Vec oo = c1.o - c2.o, ooo = r90_clockwise(oo);
-      Vec shift = ooo.dir() * c1.r;
-      Ln t(c2.o, c1.o);
-      return make_pair(t + shift, t - shift);
-    }
-  }
-  // 求两圆内公切线
-  // 要求两圆要么相离要么外切。
-  // 如果是外切的话那么返回两条相同的线（指line的两个点分别相同）
-  pair<Ln, Ln> cir_inner_common_tangent(Cir c1, Cir c2) {
-    assert(check_cir_inter(c1, c2) >= 3);
-    Pt p = cir_inner_homothetic_center(c1, c2);
-    auto pt = cir_point_tangent(c1, p);
-    if (pt.fi == pt.se) {
-      Vec oo = r90_clockwise(c1.o - c2.o);
-      Ln t(p + oo, p);
-      return make_pair(t, t);
-    } else {
-      return make_pair(Ln(p, pt.fi), Ln(p, pt.se));
-    }
-  }
-  // 求两圆所有公切线，去重
-  vector<Ln> cir_common_tangent(Cir c1, Cir c2) {
-    vector<Ln> res;
-    int typ = check_cir_inter(c1, c2);
-    if (typ > 0) {
-      auto pt = cir_outer_common_tangent(c1, c2);
-      res.pb(pt.fi);
-      if (pt.fi.ed != pt.se.ed) res.pb(pt.se);
-    }
-    if (typ >= 3) {
-      auto pt = cir_inner_common_tangent(c1, c2);
-      res.pb(pt.fi);
-      if (pt.fi.ed != pt.se.ed) res.pb(pt.se);
-    }
-    return res;
+  /// @brief 求 c1, c2 的 c1 上切点位于 (c1.o -> c2.o) 向量 c1_side 
+  /// 侧的内公切线，保证 Ln::st 是 c1 上的切点，且直线方向指向另一个切点
+  /// @param c1_side false 表示左侧，true 表示右侧
+  Ln cir_common_tangent_inner(Cir c1, Cir c2, bool c1_side) {
+    Vt l = dst(c1.o, c2.o), d = c2.r + c1.r;
+    assert(l >= d); // 否则没有公切线
+    Vt sin_a = d / l, cos_a = sqrt(l * l - d * d) / l;
+    Vec v = rot(c2.o - c1.o, cos_a, sin_a * (c1_side ? -1 : 1));
+    Vec p = rot(v, 0, c1_side ? 1 : -1).resize(c1.r) + c1.o;
+    return Ln(p, p + v);
   }
   // 求弓形面积 @param r 半径 @param angle 弓形所对的圆心角，单位 rad
   Vt cir_seg_area(Vt r, Vt angle) { return r * r * (angle - sin(angle)) / Vt(2); }
@@ -404,6 +362,23 @@ namespace cg {
     }
     return ans;
   }
+  /// 圆反演
+  struct CirInv {
+    Cir c0;
+    CirInv(Cir c): c0(c) {}
+    Pt p2p(Pt p) {
+      Vec v = p - c0.o;
+      return v.resize(c0.r * c0.r / v.length()) + c0.o;
+    }
+    // 不 check 退化的情况
+    Cir c2c(Cir c) {
+      Vec v = c.o - c0.o;
+      Vt d = v.length();
+      Vt r1 = fabs(1 / (d - c.r) - 1 / (d + c.r)) * c0.r * c0.r / 2;
+      Pt o = v.resize(fabs(1 / (d - c.r) + 1 / (d + c.r)) * c0.r * c0.r / 2) + c0.o;
+      return Cir(o, r1);
+    }
+  };
 
   // p 是否在 ln 左半平面内
   bool in_left(Ln ln, Pt p) { return gt(det(ln.vec(), p - ln.st), 0); }
